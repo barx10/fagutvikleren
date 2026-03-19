@@ -271,6 +271,372 @@ function showSection(id, btn) {
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
 }
+
+function renderTabs(data) {
+  const tabs = [
+    { id: 'flashcards', label: 'Flashcards' },
+    { id: 'sammendrag', label: 'Sammendrag' },
+    { id: 'sporsmal', label: 'Spørsmål & Svar' },
+    { id: 'utfordring', label: 'Utfordring' },
+    { id: 'nokkelBegreper', label: 'Nøkkelbegreper' },
+    { id: 'strategi', label: 'Strategi' },
+  ];
+
+  const nav = document.getElementById('tab-nav');
+  const content = document.getElementById('tab-content');
+  nav.innerHTML = '';
+  content.innerHTML = '';
+
+  tabs.forEach((tab, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = tab.label;
+    if (i === 0) btn.classList.add('active');
+    btn.addEventListener('click', () => showSection(tab.id, btn));
+    nav.appendChild(btn);
+
+    const sec = document.createElement('div');
+    sec.className = 'section' + (i === 0 ? ' active' : '');
+    sec.id = tab.id;
+    content.appendChild(sec);
+  });
+
+  renderFlashcards(data.flashcards);
+  renderSammendrag(data.sammendrag);
+  renderQA(data.qa);
+  renderUtfordring(data.utfordring);
+  renderNokkelBegreper(data.nokkelBegreper);
+  renderStrategi(data.strategi);
+}
+
+// --- Flashcards ---
+let _fcCards = [], fcFiltered = [], fcCur = 0, fcFlipped = false;
+
+function renderFlashcards(cards) {
+  _fcCards = cards;
+  fcFiltered = [...cards];
+  fcCur = 0;
+  fcFlipped = false;
+
+  const catLabels = { kjerne: 'Kjerne', fakta: 'Fakta', begrep: 'Begrep', eksempel: 'Eksempel' };
+  const cats = [...new Set(cards.map(c => c.cat))];
+  const sec = document.getElementById('flashcards');
+
+  // Static HTML shell — no user data here
+  sec.innerHTML = `
+    <div class="sec-title">Flashcards</div>
+    <div class="sec-sub">Klikk for \u00e5 snu. \u00d8v h\u00f8yt.</div>
+    <div class="ftabs" id="fc-filters">
+      <button class="ftab active" data-cat="alle">Alle</button>
+    </div>
+    <div class="pbar-bg"><div class="pbar" id="fcpb" style="width:0%"></div></div>
+    <div class="fc-hint" id="fchint">Klikk for \u00e5 snu</div>
+    <div class="fc-wrap">
+      <div class="card" id="flashcard">
+        <div class="face front">
+          <div class="clabel" id="fclabel"></div>
+          <div class="cbadge" id="fcbadge"></div>
+          <div class="ctext" id="fcfront"></div>
+        </div>
+        <div class="face back">
+          <div class="clabel">Svar</div>
+          <div class="ctext" id="fcback"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cnav">
+      <button id="fc-prev">\u2190 Forrige</button>
+      <span class="ccount" id="fccount"></span>
+      <button id="fc-next">Neste \u2192</button>
+    </div>
+  `;
+
+  // Add category filter buttons with textContent (XSS-safe)
+  const filters = document.getElementById('fc-filters');
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'ftab';
+    btn.dataset.cat = cat;
+    btn.textContent = catLabels[cat] || cat;
+    filters.appendChild(btn);
+  });
+
+  filters.addEventListener('click', e => {
+    if (!e.target.matches('.ftab')) return;
+    filters.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    const cat = e.target.dataset.cat;
+    fcFiltered = cat === 'alle' ? [..._fcCards] : _fcCards.filter(c => c.cat === cat);
+    fcCur = 0;
+    fcUpdate();
+  });
+
+  document.getElementById('flashcard').addEventListener('click', fcFlip);
+  document.getElementById('fc-next').addEventListener('click', () => { fcCur = (fcCur + 1) % fcFiltered.length; fcUpdate(); });
+  document.getElementById('fc-prev').addEventListener('click', () => { fcCur = (fcCur - 1 + fcFiltered.length) % fcFiltered.length; fcUpdate(); });
+
+  fcUpdate();
+}
+
+function fcUpdate() {
+  if (!fcFiltered.length) return;
+  const c = fcFiltered[fcCur];
+  const catLabels = { kjerne: 'Kjerne', fakta: 'Fakta', begrep: 'Begrep', eksempel: 'Eksempel' };
+  document.getElementById('fcfront').textContent = c.front;
+  document.getElementById('fcbadge').textContent = catLabels[c.cat] || c.cat;
+  document.getElementById('fcback').textContent = c.back;
+  document.getElementById('fclabel').textContent = (fcCur + 1) + ' / ' + fcFiltered.length;
+  document.getElementById('fccount').textContent = (fcCur + 1) + ' / ' + fcFiltered.length;
+  document.getElementById('fcpb').style.width = ((fcCur + 1) / fcFiltered.length * 100) + '%';
+  document.getElementById('flashcard').classList.remove('flipped');
+  fcFlipped = false;
+  document.getElementById('fchint').textContent = 'Klikk for \u00e5 snu';
+}
+
+function fcFlip() {
+  fcFlipped = !fcFlipped;
+  document.getElementById('flashcard').classList.toggle('flipped', fcFlipped);
+  document.getElementById('fchint').textContent = fcFlipped ? 'Klikk for \u00e5 snu tilbake' : 'Klikk for \u00e5 snu';
+}
+
+// --- Sammendrag ---
+function renderSammendrag(temaer) {
+  const sec = document.getElementById('sammendrag');
+  sec.innerHTML = '<div class="sec-title">Sammendrag</div><div class="sec-sub">N\u00f8kkelpunkter per tema.</div>';
+
+  temaer.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'tema-card';
+
+    const title = document.createElement('div');
+    title.className = 'tema-title';
+    title.textContent = t.tema;
+    card.appendChild(title);
+
+    const ul = document.createElement('ul');
+    t.punkter.forEach(p => {
+      const li = document.createElement('li');
+      li.textContent = p;
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+    sec.appendChild(card);
+  });
+}
+
+// --- Q&A ---
+function renderQA(qaItems) {
+  const sec = document.getElementById('sporsmal');
+  sec.innerHTML = '<div class="sec-title">Sp\u00f8rsm\u00e5l &amp; Svar</div><div class="sec-sub">Si svaret h\u00f8yt f\u00f8r du sl\u00e5r opp.</div>';
+
+  const grid = document.createElement('div');
+  grid.className = 'qa-grid';
+
+  qaItems.forEach((item, i) => {
+    const qi = document.createElement('div');
+    qi.className = 'qi';
+    qi.id = 'qa' + i;
+
+    const qq = document.createElement('div');
+    qq.className = 'qq';
+    qq.addEventListener('click', () => qi.classList.toggle('open'));
+
+    const qtext = document.createElement('span');
+    qtext.className = 'qq-text';
+    qtext.textContent = item.sporsmal;
+
+    const qtog = document.createElement('span');
+    qtog.className = 'qtog';
+    qtog.textContent = '\u25bc';
+
+    qq.appendChild(qtext);
+    qq.appendChild(qtog);
+
+    const qaBody = document.createElement('div');
+    qaBody.className = 'qa-body';
+    qaBody.textContent = item.svar;
+
+    if (item.hint) {
+      const hint = document.createElement('div');
+      hint.className = 'hint';
+      hint.textContent = '\ud83d\udca1 ' + item.hint;
+      qaBody.appendChild(hint);
+    }
+
+    qi.appendChild(qq);
+    qi.appendChild(qaBody);
+    grid.appendChild(qi);
+  });
+
+  sec.appendChild(grid);
+}
+
+// --- Utfordring ---
+let _utfordringPool = [], _utfordringTimer = null;
+
+function renderUtfordring(items) {
+  _utfordringPool = items;
+  const sec = document.getElementById('utfordring');
+  sec.innerHTML = '<div class="sec-title">Utfordringsmodus</div><div class="sec-sub">Svar h\u00f8yt p\u00e5 60 sekunder, se fasit.</div>';
+
+  const startBtn = document.createElement('button');
+  startBtn.className = 'cbtn-all';
+  startBtn.textContent = 'Tilfeldig sp\u00f8rsm\u00e5l';
+  startBtn.id = 'start-utfordring';
+  startBtn.addEventListener('click', startUtfordring);
+
+  const cq = document.createElement('div');
+  cq.className = 'cqdis';
+  cq.id = 'cq';
+
+  const timerWrap = document.createElement('div');
+  timerWrap.className = 'tbar-wrap';
+  timerWrap.id = 'ctimer';
+  timerWrap.innerHTML = '<div class="tbar-bg"><div class="tbar" id="cbar"></div></div><div class="tnum" id="csec">60</div>';
+
+  const revBtn = document.createElement('button');
+  revBtn.className = 'revbtn';
+  revBtn.id = 'crevbtn';
+  revBtn.textContent = 'Vis fasit';
+  revBtn.addEventListener('click', revealUtfordring);
+
+  const cans = document.createElement('div');
+  cans.className = 'cadis';
+  cans.id = 'cans';
+
+  sec.appendChild(startBtn);
+  sec.appendChild(cq);
+  sec.appendChild(timerWrap);
+  sec.appendChild(revBtn);
+  sec.appendChild(cans);
+}
+
+function startUtfordring() {
+  clearInterval(_utfordringTimer);
+  const item = _utfordringPool[Math.floor(Math.random() * _utfordringPool.length)];
+  window._utfordringAnswer = item.svar;
+
+  const cq = document.getElementById('cq');
+  cq.className = 'cqdis visible';
+  cq.textContent = item.sporsmal;
+
+  document.getElementById('cans').className = 'cadis';
+  document.getElementById('crevbtn').className = 'revbtn visible';
+
+  let secs = 60;
+  document.getElementById('cbar').style.width = '100%';
+  document.getElementById('cbar').className = 'tbar';
+  document.getElementById('csec').textContent = '60';
+  document.getElementById('ctimer').className = 'tbar-wrap visible';
+
+  _utfordringTimer = setInterval(() => {
+    secs--;
+    document.getElementById('csec').textContent = secs;
+    document.getElementById('cbar').style.width = (secs / 60 * 100) + '%';
+    if (secs <= 20) document.getElementById('cbar').className = 'tbar warn';
+    if (secs <= 10) document.getElementById('cbar').className = 'tbar danger';
+    if (secs <= 0) clearInterval(_utfordringTimer);
+  }, 1000);
+}
+
+function revealUtfordring() {
+  clearInterval(_utfordringTimer);
+  const el = document.getElementById('cans');
+  el.textContent = window._utfordringAnswer;
+  el.className = 'cadis visible';
+}
+
+// --- Nøkkelbegreper ---
+function renderNokkelBegreper(begreper) {
+  const sec = document.getElementById('nokkelBegreper');
+  sec.innerHTML = '<div class="sec-title">N\u00f8kkelbegreper</div><div class="sec-sub">Sentrale begreper og sammenhenger.</div>';
+
+  const grid = document.createElement('div');
+  grid.className = 'begrep-grid';
+
+  begreper.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'begrep-card';
+
+    const title = document.createElement('div');
+    title.className = 'begrep-title';
+    title.textContent = b.begrep;
+
+    const forklaring = document.createElement('div');
+    forklaring.className = 'begrep-forklaring';
+    forklaring.textContent = b.forklaring;
+
+    card.appendChild(title);
+    card.appendChild(forklaring);
+
+    if (b.sammenheng) {
+      const sammenheng = document.createElement('div');
+      sammenheng.className = 'begrep-sammenheng';
+      sammenheng.textContent = b.sammenheng;
+      card.appendChild(sammenheng);
+    }
+
+    grid.appendChild(card);
+  });
+
+  sec.appendChild(grid);
+}
+
+// --- Strategi ---
+function renderStrategi(strategi) {
+  const sec = document.getElementById('strategi');
+  sec.innerHTML = '<div class="sec-title">Strategi</div><div class="sec-sub">Muntlig framf\u00f8ring. Klikk formuleringer for \u00e5 kopiere.</div>';
+
+  const grid = document.createElement('div');
+  grid.className = 'sgrid';
+
+  function makeListCard(tittel, items) {
+    const card = document.createElement('div');
+    card.className = 'scrd';
+    const h3 = document.createElement('h3');
+    h3.textContent = tittel;
+    const ul = document.createElement('ul');
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      ul.appendChild(li);
+    });
+    card.appendChild(h3);
+    card.appendChild(ul);
+    return card;
+  }
+
+  grid.appendChild(makeListCard('Posisjonering', strategi.posisjonering));
+  grid.appendChild(makeListCard('Tips', strategi.tips));
+
+  const formCard = document.createElement('div');
+  formCard.className = 'scrd';
+  formCard.style.gridColumn = '1 / -1';
+  const formH3 = document.createElement('h3');
+  formH3.textContent = 'Forberedte formuleringer';
+  const flist = document.createElement('div');
+  flist.className = 'flist';
+
+  strategi.formuleringer.forEach(f => {
+    const el = document.createElement('div');
+    el.className = 'fi';
+    el.appendChild(document.createTextNode('\u00ab' + f + '\u00bb'));
+    const ch = document.createElement('span');
+    ch.className = 'ch';
+    ch.textContent = 'kopier';
+    el.appendChild(ch);
+    el.addEventListener('click', () => {
+      navigator.clipboard.writeText('\u00ab' + f + '\u00bb').catch(() => {});
+      el.style.background = '#d4e8d4';
+      setTimeout(() => { el.style.background = ''; }, 700);
+    });
+    flist.appendChild(el);
+  });
+
+  formCard.appendChild(formH3);
+  formCard.appendChild(flist);
+  grid.appendChild(formCard);
+  sec.appendChild(grid);
+}
 <\/script>
 </body>
 </html>
