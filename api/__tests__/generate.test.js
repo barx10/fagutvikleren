@@ -1,4 +1,5 @@
 const { validateFile } = require('../generate');
+const { buildPrompt } = require('../generate');
 
 describe('validateFile', () => {
   test('godtar pdf', () => {
@@ -18,5 +19,17 @@ describe('validateFile', () => {
 
   test('avviser for stor fil', () => {
     expect(validateFile('application/pdf', 21 * 1024 * 1024)).toMatch(/stor/i);
+  });
+});
+
+describe('buildPrompt', () => {
+  test('inkluderer JSON-instruksjon', () => {
+    expect(buildPrompt()).toMatch(/JSON/);
+  });
+
+  test('spesifiserer alle seks seksjoner', () => {
+    const prompt = buildPrompt();
+    ['flashcards', 'sammendrag', 'qa', 'utfordring', 'nokkelBegreper', 'strategi']
+      .forEach(key => expect(prompt).toMatch(key));
   });
 });
