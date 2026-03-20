@@ -4,6 +4,18 @@ const ALLOWED_TYPES = [
 ];
 const MAX_BYTES = 20 * 1024 * 1024;
 
+const GOOGLE_MODELS = [
+  'gemini-2.5-flash-lite',
+  'gemini-3-flash-preview',
+  'gemini-3.1-flash-lite-preview',
+];
+const OPENAI_MODELS = [
+  'gpt-5-mini',
+  'gpt-5.4-nano',
+  'gpt-5.4-mini',
+];
+const ALL_MODELS = [...GOOGLE_MODELS, ...OPENAI_MODELS];
+
 function validateFile(mimeType, size) {
   if (!ALLOWED_TYPES.includes(mimeType)) {
     return 'Ugyldig filtype. Last opp PDF eller DOCX.';
@@ -46,6 +58,41 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
 Generer minimum: 15 flashcards, 3-5 sammendrag-temaer (3-6 punkter hver), 10 Q&A-par, 10 utfordringsspørsmål, 8-12 nøkkelbegreper, 3 posisjoneringspunkter, 4-6 tips, 5-8 formuleringer.`;
 }
 
+async function callGemini(apiKey, model, prompt, mimeType, data, text) {
+  const { GoogleGenAI } = await import('@google/genai');
+  const ai = new GoogleGenAI({ apiKey });
+
+  const contents = mimeType === 'application/pdf'
+    ? [{ text: prompt }, { inlineData: { mimeType: 'application/pdf', data } }]
+    : [{ text: prompt + '\n\nFagstoff:\n' + text }];
+
+  const response = await ai.models.generateContent({ model, contents });
+  return (response.text ?? '').trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
+}
+
+async function callOpenAI(apiKey, model, prompt, mimeType, data, text) {
+  const OpenAI = (await import('openai')).default;
+  const client = new OpenAI({ apiKey });
+
+  const userContent = mimeType === 'application/pdf'
+    ? [
+        { type: 'text', text: 'Analyser dette fagstoffet.' },
+        { type: 'image_url', image_url: { url: 'data:application/pdf;base64,' + data } },
+      ]
+    : [{ type: 'text', text: 'Fagstoff:\n' + text }];
+
+  const response = await client.chat.completions.create({
+    model,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: prompt },
+      { role: 'user', content: userContent },
+    ],
+  });
+
+  return response.choices[0].message.content.trim();
+}
+
 async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -53,33 +100,34 @@ async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mimeType, size, data, text, apiKey } = req.body;
+  const { mimeType, size, data, text, apiKey, model } = req.body;
 
   const validationError = validateFile(mimeType, size);
   if (validationError) return res.status(400).json({ error: validationError });
 
-  const key = apiKey || process.env.GEMINI_API_KEY;
-  if (!key) return res.status(400).json({ error: 'Mangler API-nokkel. Legg inn din Gemini API-nokkel.' });
+  if (!apiKey) return res.status(400).json({ error: 'Mangler API-nokkel.' });
+  if (!model || !ALL_MODELS.includes(model)) return res.status(400).json({ error: 'Ugyldig modell.' });
+
+  const prompt = buildPrompt();
+  const isGoogle = GOOGLE_MODELS.includes(model);
 
   try {
-    const { GoogleGenAI } = await import('@google/genai');
-    const ai = new GoogleGenAI({ apiKey: key });
+    const raw = isGoogle
+      ? await callGemini(apiKey, model, prompt, mimeType, data, text)
+      : await callOpenAI(apiKey, model, prompt, mimeType, data, text);
 
-    const contents = mimeType === 'application/pdf'
-      ? [{ text: buildPrompt() }, { inlineData: { mimeType: 'application/pdf', data } }]
-      : [{ text: buildPrompt() + '\n\nFagstoff:\n' + text }];
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.1-flash-lite-preview',
-      contents,
-    });
-
-    const raw = (response.text ?? '').trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
     const result = JSON.parse(raw);
     res.status(200).json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Noe gikk galt under generering. Prøv igjen.' });
+
+    if (err.status === 401 || err.code === 401 || (err.message && err.message.includes('API key'))) {
+      return res.status(401).json({ error: 'Ugyldig API-nokkel. Sjekk at nokkelen er riktig.' });
+    }
+    if (err.status === 429 || err.code === 429) {
+      return res.status(429).json({ error: 'API-kvote overskredet. Prov igjen senere.' });
+    }
+    res.status(500).json({ error: 'Noe gikk galt under generering. Prov igjen.' });
   }
 }
 

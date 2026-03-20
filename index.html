@@ -25,14 +25,41 @@
 <div class="modal-overlay" id="key-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('key-modal')">&times;</button>
-    <h2>API-nøkkel</h2>
-    <p>Lærbart bruker Google Gemini til å analysere fagstoffet. Legg inn din egen API-nøkkel. Den lagres kun lokalt i nettleseren din.</p>
-    <div class="key-status" id="key-status"></div>
-    <label for="api-key-input">Gemini API-nøkkel</label>
-    <input type="password" id="api-key-input" placeholder="AIza..." />
+    <h2>Innstillinger</h2>
+    <p>Legg inn API-nøkler og velg modell. Nøklene lagres kun lokalt i nettleseren din.</p>
+
+    <div class="provider-group">
+      <h3 class="provider-title">Google Gemini</h3>
+      <div class="key-status" id="google-key-status"></div>
+      <label for="google-key-input">API-nøkkel</label>
+      <div class="key-input-row">
+        <input type="password" id="google-key-input" placeholder="AIza..." />
+        <button class="btn-icon" onclick="clearKey('google')" title="Fjern nøkkel">&times;</button>
+      </div>
+      <div class="model-options" id="google-models">
+        <label class="model-option"><input type="radio" name="model" value="gemini-2.5-flash-lite" /> Gemini 2.5 Flash Lite</label>
+        <label class="model-option"><input type="radio" name="model" value="gemini-3-flash-preview" /> Gemini 3 Flash Preview</label>
+        <label class="model-option"><input type="radio" name="model" value="gemini-3.1-flash-lite-preview" /> Gemini 3.1 Flash Lite Preview</label>
+      </div>
+    </div>
+
+    <div class="provider-group">
+      <h3 class="provider-title">OpenAI</h3>
+      <div class="key-status" id="openai-key-status"></div>
+      <label for="openai-key-input">API-nøkkel</label>
+      <div class="key-input-row">
+        <input type="password" id="openai-key-input" placeholder="sk-..." />
+        <button class="btn-icon" onclick="clearKey('openai')" title="Fjern nøkkel">&times;</button>
+      </div>
+      <div class="model-options" id="openai-models">
+        <label class="model-option"><input type="radio" name="model" value="gpt-5-mini" /> GPT-5 mini</label>
+        <label class="model-option"><input type="radio" name="model" value="gpt-5.4-nano" /> GPT-5.4 nano</label>
+        <label class="model-option"><input type="radio" name="model" value="gpt-5.4-mini" /> GPT-5.4 mini</label>
+      </div>
+    </div>
+
     <div class="modal-actions">
-      <button class="btn-primary" onclick="saveApiKey()">Lagre</button>
-      <button class="btn-secondary" onclick="clearApiKey()">Fjern</button>
+      <button class="btn-primary" onclick="saveSettings()">Lagre</button>
     </div>
   </div>
 </div>
@@ -41,7 +68,7 @@
   <div class="modal">
     <button class="modal-close" onclick="closeModal('help-modal')">&times;</button>
     <h2>Slik bruker du Lærbart</h2>
-    <p><strong>1. Legg inn API-nøkkel</strong><br>Klikk «API» i toppmenyen og lim inn din Gemini API-nøkkel. Den lagres kun i nettleseren din.</p>
+    <p><strong>1. Legg inn API-nøkkel</strong><br>Klikk «API» i toppmenyen, lim inn din API-nøkkel for Google Gemini eller OpenAI, og velg modell. Nøklene lagres kun i nettleseren din.</p>
     <p><strong>2. Last opp fagstoff</strong><br>Last opp en PDF (maks 3MB) eller DOCX-fil (maks 20MB) med fagstoffet du vil jobbe med.</p>
     <p><strong>3. Generer</strong><br>Klikk «Generer læringsverktøy». KI-en analyserer fagstoffet og lager:</p>
     <p>&bull; <strong>Flashcards</strong> &ndash; øv begreper og sammenhenger<br>

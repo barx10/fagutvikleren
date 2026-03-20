@@ -1,7 +1,17 @@
-// --- Modals & API key ---
+// --- Models config ---
+var MODELS = {
+  'gemini-2.5-flash-lite': { provider: 'google', label: 'Gemini 2.5 Flash Lite' },
+  'gemini-3-flash-preview': { provider: 'google', label: 'Gemini 3 Flash Preview' },
+  'gemini-3.1-flash-lite-preview': { provider: 'google', label: 'Gemini 3.1 Flash Lite Preview' },
+  'gpt-5-mini': { provider: 'openai', label: 'GPT-5 mini' },
+  'gpt-5.4-nano': { provider: 'openai', label: 'GPT-5.4 nano' },
+  'gpt-5.4-mini': { provider: 'openai', label: 'GPT-5.4 mini' },
+};
+
+// --- Modals & settings ---
 function openModal(id) {
   document.getElementById(id).classList.add('visible');
-  if (id === 'key-modal') updateKeyStatus();
+  if (id === 'key-modal') loadSettings();
 }
 function closeModal(id) {
   document.getElementById(id).classList.remove('visible');
@@ -12,30 +22,90 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
   });
 });
 
-function getApiKey() {
-  return localStorage.getItem('gemini_api_key') || '';
+function getKey(provider) {
+  return localStorage.getItem('laerbar_' + provider + '_key') || '';
 }
-function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) return;
-  localStorage.setItem('gemini_api_key', key);
-  updateKeyStatus();
+function getSelectedModel() {
+  return localStorage.getItem('laerbar_model') || '';
 }
-function clearApiKey() {
-  localStorage.removeItem('gemini_api_key');
-  document.getElementById('api-key-input').value = '';
-  updateKeyStatus();
+
+function loadSettings() {
+  var googleKey = getKey('google');
+  var openaiKey = getKey('openai');
+  var selectedModel = getSelectedModel();
+
+  document.getElementById('google-key-input').value = googleKey;
+  document.getElementById('openai-key-input').value = openaiKey;
+
+  updateProviderStatus('google', googleKey);
+  updateProviderStatus('openai', openaiKey);
+
+  updateModelStates();
+
+  if (selectedModel) {
+    var radio = document.querySelector('input[name="model"][value="' + selectedModel + '"]');
+    if (radio && !radio.disabled) radio.checked = true;
+  }
 }
-function updateKeyStatus() {
-  const el = document.getElementById('key-status');
-  const key = getApiKey();
+
+function updateProviderStatus(provider, key) {
+  var el = document.getElementById(provider + '-key-status');
   if (key) {
     el.className = 'key-status ok';
     el.textContent = 'Nokkel lagret (' + key.slice(0, 6) + '...)';
-    document.getElementById('api-key-input').value = key;
   } else {
     el.className = 'key-status missing';
     el.textContent = 'Ingen nokkel lagret';
+  }
+}
+
+function updateModelStates() {
+  var googleKey = document.getElementById('google-key-input').value.trim();
+  var openaiKey = document.getElementById('openai-key-input').value.trim();
+
+  document.querySelectorAll('#google-models input[type="radio"]').forEach(function(r) {
+    r.disabled = !googleKey;
+    r.closest('.model-option').classList.toggle('disabled', !googleKey);
+  });
+  document.querySelectorAll('#openai-models input[type="radio"]').forEach(function(r) {
+    r.disabled = !openaiKey;
+    r.closest('.model-option').classList.toggle('disabled', !openaiKey);
+  });
+}
+
+document.addEventListener('input', function(e) {
+  if (e.target.id === 'google-key-input' || e.target.id === 'openai-key-input') {
+    updateModelStates();
+  }
+});
+
+function saveSettings() {
+  var googleKey = document.getElementById('google-key-input').value.trim();
+  var openaiKey = document.getElementById('openai-key-input').value.trim();
+  var selectedRadio = document.querySelector('input[name="model"]:checked');
+
+  if (googleKey) localStorage.setItem('laerbar_google_key', googleKey);
+  else localStorage.removeItem('laerbar_google_key');
+
+  if (openaiKey) localStorage.setItem('laerbar_openai_key', openaiKey);
+  else localStorage.removeItem('laerbar_openai_key');
+
+  if (selectedRadio) localStorage.setItem('laerbar_model', selectedRadio.value);
+
+  closeModal('key-modal');
+}
+
+function clearKey(provider) {
+  localStorage.removeItem('laerbar_' + provider + '_key');
+  document.getElementById(provider + '-key-input').value = '';
+  updateProviderStatus(provider, '');
+  updateModelStates();
+
+  // Uncheck models for this provider if selected
+  var selectedRadio = document.querySelector('input[name="model"]:checked');
+  if (selectedRadio && MODELS[selectedRadio.value] && MODELS[selectedRadio.value].provider === provider) {
+    selectedRadio.checked = false;
+    localStorage.removeItem('laerbar_model');
   }
 }
 
@@ -103,9 +173,17 @@ async function generate() {
   const btn = document.getElementById('generate-btn');
   errEl.textContent = '';
 
-  const apiKey = getApiKey();
+  const model = getSelectedModel();
+  if (!model || !MODELS[model]) {
+    errEl.textContent = 'Velg en modell i innstillinger forst.';
+    openModal('key-modal');
+    return;
+  }
+
+  const provider = MODELS[model].provider;
+  const apiKey = getKey(provider);
   if (!apiKey) {
-    errEl.textContent = 'Du ma legge inn en Gemini API-nokkel forst.';
+    errEl.textContent = 'Legg inn API-nokkel for ' + (provider === 'google' ? 'Google Gemini' : 'OpenAI') + ' i innstillinger.';
     openModal('key-modal');
     return;
   }
@@ -126,11 +204,11 @@ async function generate() {
         binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
       }
       const base64 = btoa(binary);
-      body = { mimeType, size: selectedFile.size, data: base64, apiKey };
+      body = { mimeType, size: selectedFile.size, data: base64, apiKey, model };
     } else {
       const arrayBuffer = await selectedFile.arrayBuffer();
       const result = await mammoth.extractRawText({ arrayBuffer });
-      body = { mimeType, size: selectedFile.size, text: result.value, apiKey };
+      body = { mimeType, size: selectedFile.size, text: result.value, apiKey, model };
     }
 
     const res = await fetch('/api/generate', {
