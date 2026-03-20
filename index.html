@@ -790,7 +790,7 @@ function downloadHTML() {
   const contentHTML = document.getElementById('tab-content').innerHTML;
 
   const standaloneJS = `
-const _d = ${JSON.stringify(data).replace(/</script>/gi, '<\\/script>')};
+const _d = ${JSON.stringify(data).replace(/<\/script>/gi, '<\\/script>')};
 let _fcCards = _d.flashcards, fcFiltered = [..._d.flashcards], fcCur = 0, fcFlipped = false;
 let _utfordringPool = _d.utfordring, _utfordringTimer = null;
 
