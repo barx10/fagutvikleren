@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lærbart</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"><\/script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 <style>
 :root{--cream:#f5f0e8;--dg:#1a2e20;--mg:#2d4a35;--lg:#3d6b4a;--gold:#c9a84c;--gl:#e8c97a;--red:#c0392b;--text:#1a1a1a;--muted:#6b7c6e}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -790,7 +790,7 @@ function downloadHTML() {
   const contentHTML = document.getElementById('tab-content').innerHTML;
 
   const standaloneJS = `
-const _d = ${JSON.stringify(data).replace(/<\/script>/gi, '<\\/script>')};
+const _d = ${JSON.stringify(data).replace(/</script>/gi, '<\\/script>')};
 let _fcCards = _d.flashcards, fcFiltered = [..._d.flashcards], fcCur = 0, fcFlipped = false;
 let _utfordringPool = _d.utfordring, _utfordringTimer = null;
 
@@ -929,6 +929,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.removeChild(a);
   URL.revokeObjectURL(a.href);
 }
-<\/script>
+</script>
 </body>
 </html>
