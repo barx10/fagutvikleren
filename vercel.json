@@ -1,7 +1,6 @@
 {
-  "buildCommand": "",
-  "outputDirectory": ".",
   "framework": null,
+  "installCommand": "npm install --production",
   "functions": {
     "api/generate.js": {
       "maxDuration": 60
