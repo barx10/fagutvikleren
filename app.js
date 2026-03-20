@@ -158,12 +158,9 @@ function setFile(file) {
     errEl.textContent = 'Kun PDF og DOCX støttes.';
     return;
   }
-  const isPdf = mime === 'application/pdf';
-  const maxSize = isPdf ? 3 * 1024 * 1024 : 20 * 1024 * 1024;
+  const maxSize = 20 * 1024 * 1024;
   if (file.size > maxSize) {
-    errEl.textContent = isPdf
-      ? 'PDF-filen er for stor. Maks 3MB.'
-      : 'DOCX-filen er for stor. Maks 20MB.';
+    errEl.textContent = 'Filen er for stor. Maks 20MB.';
     return;
   }
   selectedFile = file;
@@ -201,22 +198,27 @@ async function generate() {
 
   try {
     const mimeType = selectedFile.type || detectMime(selectedFile.name);
-    let body;
+    const arrayBuffer = await selectedFile.arrayBuffer();
+    let text;
 
     if (mimeType === 'application/pdf') {
-      const arrayBuffer = await selectedFile.arrayBuffer();
-      let binary = '';
-      const bytes = new Uint8Array(arrayBuffer);
-      for (let i = 0; i < bytes.length; i += 8192) {
-        binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+      const pdfjsLib = window.pdfjsLib;
+      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        pages.push(content.items.map(function(item) { return item.str; }).join(' '));
       }
-      const base64 = btoa(binary);
-      body = { mimeType, size: selectedFile.size, data: base64, apiKey, model, audience: localStorage.getItem('laerbar_audience') || 'voksen' };
+      text = pages.join('\n\n');
     } else {
-      const arrayBuffer = await selectedFile.arrayBuffer();
       const result = await mammoth.extractRawText({ arrayBuffer });
-      body = { mimeType, size: selectedFile.size, text: result.value, apiKey, model, audience: localStorage.getItem('laerbar_audience') || 'voksen' };
+      text = result.value;
     }
+
+    if (!text || !text.trim()) throw new Error('Kunne ikke hente tekst fra filen. Sjekk at den inneholder lesbar tekst.');
+
+    const body = { mimeType, size: selectedFile.size, text, apiKey, model, audience: localStorage.getItem('laerbar_audience') || 'voksen' };
 
     const res = await fetch('/api/generate', {
       method: 'POST',

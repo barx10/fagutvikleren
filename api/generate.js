@@ -60,35 +60,26 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
 Generer minimum: 15 flashcards, 3-5 sammendrag-temaer (3-6 punkter hver), 10 Q&A-par, 10 utfordringsspørsmål, 8-12 nøkkelbegreper, 6-10 sammenligninger.`;
 }
 
-async function callGemini(apiKey, model, prompt, mimeType, data, text) {
+async function callGemini(apiKey, model, prompt, text) {
   const { GoogleGenAI } = await import('@google/genai');
   const ai = new GoogleGenAI({ apiKey });
 
-  const contents = mimeType === 'application/pdf'
-    ? [{ text: prompt }, { inlineData: { mimeType: 'application/pdf', data } }]
-    : [{ text: prompt + '\n\nFagstoff:\n' + text }];
+  const contents = [{ text: prompt + '\n\nFagstoff:\n' + text }];
 
   const response = await ai.models.generateContent({ model, contents });
   return (response.text ?? '').trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
 }
 
-async function callOpenAI(apiKey, model, prompt, mimeType, data, text) {
+async function callOpenAI(apiKey, model, prompt, text) {
   const OpenAI = (await import('openai')).default;
   const client = new OpenAI({ apiKey });
-
-  const userContent = mimeType === 'application/pdf'
-    ? [
-        { type: 'text', text: 'Analyser dette fagstoffet.' },
-        { type: 'image_url', image_url: { url: 'data:application/pdf;base64,' + data } },
-      ]
-    : [{ type: 'text', text: 'Fagstoff:\n' + text }];
 
   const response = await client.chat.completions.create({
     model,
     response_format: { type: 'json_object' },
     messages: [
       { role: 'system', content: prompt },
-      { role: 'user', content: userContent },
+      { role: 'user', content: [{ type: 'text', text: 'Fagstoff:\n' + text }] },
     ],
   });
 
@@ -102,7 +93,7 @@ async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mimeType, size, data, text, apiKey, model, audience } = req.body;
+  const { mimeType, size, text, apiKey, model, audience } = req.body;
 
   const validationError = validateFile(mimeType, size);
   if (validationError) return res.status(400).json({ error: validationError });
@@ -115,8 +106,8 @@ async function handler(req, res) {
 
   try {
     const raw = isGoogle
-      ? await callGemini(apiKey, model, prompt, mimeType, data, text)
-      : await callOpenAI(apiKey, model, prompt, mimeType, data, text);
+      ? await callGemini(apiKey, model, prompt, text)
+      : await callOpenAI(apiKey, model, prompt, text);
 
     const result = JSON.parse(raw);
     res.status(200).json(result);
