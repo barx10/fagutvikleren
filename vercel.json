@@ -1,7 +1,13 @@
 {
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "framework": null,
   "functions": {
     "api/generate.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/debattforberedelse", "destination": "/debattforberedelse.html" }
+  ]
 }
