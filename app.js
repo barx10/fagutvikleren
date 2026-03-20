@@ -39,10 +39,6 @@ function updateKeyStatus() {
   }
 }
 
-// Show key modal on first visit if no key
-if (!getApiKey()) {
-  window.addEventListener('DOMContentLoaded', () => openModal('key-modal'));
-}
 
 function esc(str) {
   return String(str)
