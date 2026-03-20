@@ -142,7 +142,7 @@ main{padding:32px 36px;max-width:920px}
 <header>
   <div>
     <h1 id="page-title">Lærbart</h1>
-    <div id="page-sub" style="font-size:.8rem;color:var(--gl);margin-top:4px;opacity:.85;">Last opp fagstoff og f\u00e5 det differensiert</div>
+    <div id="page-sub" style="font-size:.8rem;color:var(--gl);margin-top:4px;opacity:.85;">Last opp fagstoff og få det differensiert</div>
   </div>
   <div class="header-actions" id="header-actions">
     <button class="btn-outline" onclick="openModal('help-modal')">Hjelp</button>
@@ -205,18 +205,18 @@ main{padding:32px 36px;max-width:920px}
 <div id="upload-view">
   <div class="upload-card">
     <h2>Last opp fagstoff</h2>
-    <p>Verkt\u00f8yet analyserer fagstoffet ditt og lager flashcards, sammendrag, sp\u00f8rsm\u00e5l og mer.</p>
+    <p>Verktøyet analyserer fagstoffet ditt og lager flashcards, sammendrag, spørsmål og mer.</p>
     <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
       <input type="file" id="file-input" accept=".pdf,.docx" />
-      <div class="drop-icon">\U0001f4c4</div>
-      <div class="drop-label">Klikk eller dra hit \u00b7 PDF (maks 3MB) eller DOCX (maks 20MB)</div>
+      <div class="drop-icon">📄</div>
+      <div class="drop-label">Klikk eller dra hit · PDF (maks 3MB) eller DOCX (maks 20MB)</div>
     </div>
     <div class="file-chosen" id="file-chosen"></div>
     <div class="spinner" id="spinner">
       <div class="spin"></div>
-      <div class="spin-label">Analyserer fagstoffet\u2026</div>
+      <div class="spin-label">Analyserer fagstoffet…</div>
     </div>
-    <button class="btn-primary" id="generate-btn" disabled onclick="generate()">Generer l\u00e6ringsverkt\u00f8y</button>
+    <button class="btn-primary" id="generate-btn" disabled onclick="generate()">Generer læringsverktøy</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
 </div>
@@ -310,7 +310,7 @@ function setFile(file) {
   const mime = file.type || detectMime(file.name);
   const errEl = document.getElementById('error-msg');
   if (!allowed.includes(mime)) {
-    errEl.textContent = 'Kun PDF og DOCX st\u00f8ttes.';
+    errEl.textContent = 'Kun PDF og DOCX støttes.';
     return;
   }
   const isPdf = mime === 'application/pdf';
@@ -342,7 +342,7 @@ async function generate() {
   }
 
   btn.disabled = true;
-  btn.textContent = 'Analyserer\u2026';
+  btn.textContent = 'Analyserer…';
   document.getElementById('spinner').classList.add('visible');
 
   try {
@@ -377,7 +377,7 @@ async function generate() {
     errEl.textContent = err.message;
     btn.disabled = false;
   } finally {
-    btn.textContent = 'Generer l\u00e6ringsverkt\u00f8y';
+    btn.textContent = 'Generer læringsverktøy';
     document.getElementById('spinner').classList.remove('visible');
   }
 }
@@ -385,7 +385,7 @@ async function generate() {
 function showResult(data) {
   document.getElementById('upload-view').style.display = 'none';
   document.getElementById('result-view').classList.add('visible');
-  document.getElementById('page-title').textContent = data.title || 'L\u00e6ringsverkt\u00f8y';
+  document.getElementById('page-title').textContent = data.title || 'Læringsverktøy';
   document.getElementById('page-sub').textContent = data.subject || '';
 
   const actions = document.getElementById('header-actions');
@@ -396,7 +396,7 @@ function showResult(data) {
   dlBtn.addEventListener('click', downloadHTML);
   const restartBtn = document.createElement('button');
   restartBtn.className = 'btn-outline';
-  restartBtn.textContent = 'Start p\u00e5 nytt';
+  restartBtn.textContent = 'Start på nytt';
   restartBtn.addEventListener('click', () => location.reload());
   actions.appendChild(dlBtn);
   actions.appendChild(restartBtn);
@@ -464,12 +464,12 @@ function renderFlashcards(cards) {
   // Static HTML shell — no user data here
   sec.innerHTML = `
     <div class="sec-title">Flashcards</div>
-    <div class="sec-sub">Klikk for \u00e5 snu. \u00d8v h\u00f8yt.</div>
+    <div class="sec-sub">Klikk for å snu. Øv høyt.</div>
     <div class="ftabs" id="fc-filters">
       <button class="ftab active" data-cat="alle">Alle</button>
     </div>
     <div class="pbar-bg"><div class="pbar" id="fcpb" style="width:0%"></div></div>
-    <div class="fc-hint" id="fchint">Klikk for \u00e5 snu</div>
+    <div class="fc-hint" id="fchint">Klikk for å snu</div>
     <div class="fc-wrap">
       <div class="card" id="flashcard">
         <div class="face front">
@@ -484,9 +484,9 @@ function renderFlashcards(cards) {
       </div>
     </div>
     <div class="cnav">
-      <button id="fc-prev">\u2190 Forrige</button>
+      <button id="fc-prev">← Forrige</button>
       <span class="ccount" id="fccount"></span>
-      <button id="fc-next">Neste \u2192</button>
+      <button id="fc-next">Neste →</button>
     </div>
   `;
 
@@ -529,19 +529,19 @@ function fcUpdate() {
   document.getElementById('fcpb').style.width = ((fcCur + 1) / fcFiltered.length * 100) + '%';
   document.getElementById('flashcard').classList.remove('flipped');
   fcFlipped = false;
-  document.getElementById('fchint').textContent = 'Klikk for \u00e5 snu';
+  document.getElementById('fchint').textContent = 'Klikk for å snu';
 }
 
 function fcFlip() {
   fcFlipped = !fcFlipped;
   document.getElementById('flashcard').classList.toggle('flipped', fcFlipped);
-  document.getElementById('fchint').textContent = fcFlipped ? 'Klikk for \u00e5 snu tilbake' : 'Klikk for \u00e5 snu';
+  document.getElementById('fchint').textContent = fcFlipped ? 'Klikk for å snu tilbake' : 'Klikk for å snu';
 }
 
 // --- Sammendrag ---
 function renderSammendrag(temaer) {
   const sec = document.getElementById('sammendrag');
-  sec.innerHTML = '<div class="sec-title">Sammendrag</div><div class="sec-sub">N\u00f8kkelpunkter per tema.</div>';
+  sec.innerHTML = '<div class="sec-title">Sammendrag</div><div class="sec-sub">Nøkkelpunkter per tema.</div>';
 
   temaer.forEach(t => {
     const card = document.createElement('div');
@@ -566,7 +566,7 @@ function renderSammendrag(temaer) {
 // --- Q&A ---
 function renderQA(qaItems) {
   const sec = document.getElementById('sporsmal');
-  sec.innerHTML = '<div class="sec-title">Sp\u00f8rsm\u00e5l &amp; Svar</div><div class="sec-sub">Si svaret h\u00f8yt f\u00f8r du sl\u00e5r opp.</div>';
+  sec.innerHTML = '<div class="sec-title">Spørsmål &amp; Svar</div><div class="sec-sub">Si svaret høyt før du slår opp.</div>';
 
   const grid = document.createElement('div');
   grid.className = 'qa-grid';
@@ -586,7 +586,7 @@ function renderQA(qaItems) {
 
     const qtog = document.createElement('span');
     qtog.className = 'qtog';
-    qtog.textContent = '\u25bc';
+    qtog.textContent = '▼';
 
     qq.appendChild(qtext);
     qq.appendChild(qtog);
@@ -598,7 +598,7 @@ function renderQA(qaItems) {
     if (item.hint) {
       const hint = document.createElement('div');
       hint.className = 'hint';
-      hint.textContent = '\ud83d\udca1 ' + item.hint;
+      hint.textContent = '💡 ' + item.hint;
       qaBody.appendChild(hint);
     }
 
@@ -616,11 +616,11 @@ let _utfordringPool = [], _utfordringTimer = null;
 function renderUtfordring(items) {
   _utfordringPool = items;
   const sec = document.getElementById('utfordring');
-  sec.innerHTML = '<div class="sec-title">Utfordringsmodus</div><div class="sec-sub">Svar h\u00f8yt p\u00e5 60 sekunder, se fasit.</div>';
+  sec.innerHTML = '<div class="sec-title">Utfordringsmodus</div><div class="sec-sub">Svar høyt på 60 sekunder, se fasit.</div>';
 
   const startBtn = document.createElement('button');
   startBtn.className = 'cbtn-all';
-  startBtn.textContent = 'Tilfeldig sp\u00f8rsm\u00e5l';
+  startBtn.textContent = 'Tilfeldig spørsmål';
   startBtn.id = 'start-utfordring';
   startBtn.addEventListener('click', startUtfordring);
 
@@ -688,7 +688,7 @@ function revealUtfordring() {
 // --- Nøkkelbegreper ---
 function renderNokkelBegreper(begreper) {
   const sec = document.getElementById('nokkelBegreper');
-  sec.innerHTML = '<div class="sec-title">N\u00f8kkelbegreper</div><div class="sec-sub">Sentrale begreper og sammenhenger.</div>';
+  sec.innerHTML = '<div class="sec-title">Nøkkelbegreper</div><div class="sec-sub">Sentrale begreper og sammenhenger.</div>';
 
   const grid = document.createElement('div');
   grid.className = 'begrep-grid';
@@ -724,7 +724,7 @@ function renderNokkelBegreper(begreper) {
 // --- Strategi ---
 function renderStrategi(strategi) {
   const sec = document.getElementById('strategi');
-  sec.innerHTML = '<div class="sec-title">Strategi</div><div class="sec-sub">Muntlig framf\u00f8ring. Klikk formuleringer for \u00e5 kopiere.</div>';
+  sec.innerHTML = '<div class="sec-title">Strategi</div><div class="sec-sub">Muntlig framføring. Klikk formuleringer for å kopiere.</div>';
 
   const grid = document.createElement('div');
   grid.className = 'sgrid';
@@ -759,13 +759,13 @@ function renderStrategi(strategi) {
   strategi.formuleringer.forEach(f => {
     const el = document.createElement('div');
     el.className = 'fi';
-    el.appendChild(document.createTextNode('\u00ab' + f + '\u00bb'));
+    el.appendChild(document.createTextNode('«' + f + '»'));
     const ch = document.createElement('span');
     ch.className = 'ch';
     ch.textContent = 'kopier';
     el.appendChild(ch);
     el.addEventListener('click', () => {
-      navigator.clipboard.writeText('\u00ab' + f + '\u00bb').catch(() => {});
+      navigator.clipboard.writeText('«' + f + '»').catch(() => {});
       el.style.background = '#d4e8d4';
       setTimeout(() => { el.style.background = ''; }, 700);
     });
@@ -783,7 +783,7 @@ function downloadHTML() {
   if (!data) return;
 
   const css = document.querySelector('style').textContent;
-  const safeTitle = esc(data.title || 'L\u00e6ringsverkt\u00f8y');
+  const safeTitle = esc(data.title || 'Læringsverktøy');
   const safeSubject = esc(data.subject || '');
 
   const navHTML = document.getElementById('tab-nav').innerHTML;
@@ -813,13 +813,13 @@ function fcUpdate() {
   document.getElementById('fcpb').style.width = ((fcCur+1)/fcFiltered.length*100) + '%';
   document.getElementById('flashcard').classList.remove('flipped');
   fcFlipped = false;
-  document.getElementById('fchint').textContent = 'Klikk for \\u00e5 snu';
+  document.getElementById('fchint').textContent = 'Klikk for \å snu';
 }
 
 function fcFlip() {
   fcFlipped = !fcFlipped;
   document.getElementById('flashcard').classList.toggle('flipped', fcFlipped);
-  document.getElementById('fchint').textContent = fcFlipped ? 'Klikk for \\u00e5 snu tilbake' : 'Klikk for \\u00e5 snu';
+  document.getElementById('fchint').textContent = fcFlipped ? 'Klikk for \å snu tilbake' : 'Klikk for \å snu';
 }
 
 function startUtfordring() {
@@ -922,7 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = (data.title || 'laeringsverktoy')
-    .replace(/[^a-z0-9\u00e6\u00f8\u00e5]/gi, '-')
+    .replace(/[^a-z0-9æøå]/gi, '-')
     .toLowerCase() + '.html';
   document.body.appendChild(a);
   a.click();
