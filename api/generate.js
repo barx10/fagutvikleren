@@ -26,9 +26,13 @@ function validateFile(mimeType, size) {
   return null;
 }
 
-function buildPrompt() {
-  return `Du er en pedagogisk assistent. Analyser fagstoffet og generer et strukturert læringsverktøy på norsk.
+function buildPrompt(audience) {
+  const audienceInstruction = audience === 'elev'
+    ? '\nMålgruppen er en elev på 13 år. Bruk enkelt språk, korte setninger, og forklar vanskelige begreper.\n'
+    : '';
 
+  return `Du er en pedagogisk assistent. Analyser fagstoffet og generer et strukturert læringsverktøy på norsk.
+${audienceInstruction}
 Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
 {
   "title": "Fagstoff-tittel",
@@ -48,14 +52,12 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
   "nokkelBegreper": [
     { "begrep": "Begrep", "forklaring": "Forklaring", "sammenheng": "Sammenheng med andre begreper" }
   ],
-  "strategi": {
-    "posisjonering": ["Faglig posisjonering"],
-    "tips": ["Konkret tips for muntlig framføring"],
-    "formuleringer": ["Forberedt formulering"]
-  }
+  "sammenligning": [
+    { "tema": "Begrep fra fagstoffet", "sammenlignetMed": "Noe fra et annet felt/verden", "forklaring": "Hvordan de ligner/skiller seg" }
+  ]
 }
 
-Generer minimum: 15 flashcards, 3-5 sammendrag-temaer (3-6 punkter hver), 10 Q&A-par, 10 utfordringsspørsmål, 8-12 nøkkelbegreper, 3 posisjoneringspunkter, 4-6 tips, 5-8 formuleringer.`;
+Generer minimum: 15 flashcards, 3-5 sammendrag-temaer (3-6 punkter hver), 10 Q&A-par, 10 utfordringsspørsmål, 8-12 nøkkelbegreper, 6-10 sammenligninger.`;
 }
 
 async function callGemini(apiKey, model, prompt, mimeType, data, text) {
@@ -100,7 +102,7 @@ async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mimeType, size, data, text, apiKey, model } = req.body;
+  const { mimeType, size, data, text, apiKey, model, audience } = req.body;
 
   const validationError = validateFile(mimeType, size);
   if (validationError) return res.status(400).json({ error: validationError });
@@ -108,7 +110,7 @@ async function handler(req, res) {
   if (!apiKey) return res.status(400).json({ error: 'Mangler API-nokkel.' });
   if (!model || !ALL_MODELS.includes(model)) return res.status(400).json({ error: 'Ugyldig modell.' });
 
-  const prompt = buildPrompt();
+  const prompt = buildPrompt(audience);
   const isGoogle = GOOGLE_MODELS.includes(model);
 
   try {

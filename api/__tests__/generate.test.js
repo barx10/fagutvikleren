@@ -29,7 +29,23 @@ describe('buildPrompt', () => {
 
   test('spesifiserer alle seks seksjoner', () => {
     const prompt = buildPrompt();
-    ['flashcards', 'sammendrag', 'qa', 'utfordring', 'nokkelBegreper', 'strategi']
+    ['flashcards', 'sammendrag', 'qa', 'utfordring', 'nokkelBegreper', 'sammenligning']
       .forEach(key => expect(prompt).toMatch(key));
+  });
+
+  test('voksen-modus inkluderer ikke elevtekst', () => {
+    const prompt = buildPrompt('voksen');
+    expect(prompt).not.toMatch(/elev på 13 år/);
+  });
+
+  test('elev-modus inkluderer enklere språk-instruksjon', () => {
+    const prompt = buildPrompt('elev');
+    expect(prompt).toMatch(/elev på 13 år/);
+    expect(prompt).toMatch(/enkelt språk/);
+  });
+
+  test('default (ingen argument) inkluderer ikke elevtekst', () => {
+    const prompt = buildPrompt();
+    expect(prompt).not.toMatch(/elev på 13 år/);
   });
 });

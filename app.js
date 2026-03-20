@@ -46,6 +46,10 @@ function loadSettings() {
     var radio = document.querySelector('input[name="model"][value="' + selectedModel + '"]');
     if (radio && !radio.disabled) radio.checked = true;
   }
+
+  var audience = localStorage.getItem('laerbar_audience') || 'voksen';
+  var audRadio = document.querySelector('input[name="audience"][value="' + audience + '"]');
+  if (audRadio) audRadio.checked = true;
 }
 
 function updateProviderStatus(provider, key) {
@@ -91,6 +95,9 @@ function saveSettings() {
   else localStorage.removeItem('laerbar_openai_key');
 
   if (selectedRadio) localStorage.setItem('laerbar_model', selectedRadio.value);
+
+  var audienceRadio = document.querySelector('input[name="audience"]:checked');
+  if (audienceRadio) localStorage.setItem('laerbar_audience', audienceRadio.value);
 
   closeModal('key-modal');
 }
@@ -204,11 +211,11 @@ async function generate() {
         binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
       }
       const base64 = btoa(binary);
-      body = { mimeType, size: selectedFile.size, data: base64, apiKey, model };
+      body = { mimeType, size: selectedFile.size, data: base64, apiKey, model, audience: localStorage.getItem('laerbar_audience') || 'voksen' };
     } else {
       const arrayBuffer = await selectedFile.arrayBuffer();
       const result = await mammoth.extractRawText({ arrayBuffer });
-      body = { mimeType, size: selectedFile.size, text: result.value, apiKey, model };
+      body = { mimeType, size: selectedFile.size, text: result.value, apiKey, model, audience: localStorage.getItem('laerbar_audience') || 'voksen' };
     }
 
     const res = await fetch('/api/generate', {
@@ -267,7 +274,7 @@ function renderTabs(data) {
     { id: 'sporsmal', label: 'Spørsmål & Svar' },
     { id: 'utfordring', label: 'Utfordring' },
     { id: 'nokkelBegreper', label: 'Nøkkelbegreper' },
-    { id: 'strategi', label: 'Strategi' },
+    { id: 'sammenligning', label: 'Sammenligning' },
   ];
 
   const nav = document.getElementById('tab-nav');
@@ -293,7 +300,7 @@ function renderTabs(data) {
   renderQA(data.qa);
   renderUtfordring(data.utfordring);
   renderNokkelBegreper(data.nokkelBegreper);
-  renderStrategi(data.strategi);
+  renderSammenligning(data.sammenligning);
 }
 
 // --- Flashcards ---
@@ -567,60 +574,40 @@ function renderNokkelBegreper(begreper) {
   sec.appendChild(grid);
 }
 
-// --- Strategi ---
-function renderStrategi(strategi) {
-  const sec = document.getElementById('strategi');
-  sec.innerHTML = '<div class="sec-title">Strategi</div><div class="sec-sub">Muntlig framføring. Klikk formuleringer for å kopiere.</div>';
+// --- Sammenligning ---
+function renderSammenligning(items) {
+  if (!items || !items.length) return;
+  const sec = document.getElementById('sammenligning');
+
+  const secTitle = document.createElement('div');
+  secTitle.className = 'sec-title';
+  secTitle.textContent = 'Sammenligning';
+  const secSub = document.createElement('div');
+  secSub.className = 'sec-sub';
+  secSub.textContent = 'Koblinger til andre felt og den virkelige verden.';
+  sec.appendChild(secTitle);
+  sec.appendChild(secSub);
 
   const grid = document.createElement('div');
-  grid.className = 'sgrid';
+  grid.className = 'begrep-grid';
 
-  function makeListCard(tittel, items) {
+  items.forEach(function(item) {
     const card = document.createElement('div');
-    card.className = 'scrd';
-    const h3 = document.createElement('h3');
-    h3.textContent = tittel;
-    const ul = document.createElement('ul');
-    items.forEach(item => {
-      const li = document.createElement('li');
-      li.textContent = item;
-      ul.appendChild(li);
-    });
-    card.appendChild(h3);
-    card.appendChild(ul);
-    return card;
-  }
+    card.className = 'begrep-card';
 
-  grid.appendChild(makeListCard('Posisjonering', strategi.posisjonering));
-  grid.appendChild(makeListCard('Tips', strategi.tips));
+    const title = document.createElement('h3');
+    title.className = 'begrep-title';
+    title.textContent = item.tema + ' \u2192 ' + item.sammenlignetMed;
 
-  const formCard = document.createElement('div');
-  formCard.className = 'scrd';
-  formCard.style.gridColumn = '1 / -1';
-  const formH3 = document.createElement('h3');
-  formH3.textContent = 'Forberedte formuleringer';
-  const flist = document.createElement('div');
-  flist.className = 'flist';
+    const forklaring = document.createElement('p');
+    forklaring.className = 'begrep-forklaring';
+    forklaring.textContent = item.forklaring;
 
-  strategi.formuleringer.forEach(f => {
-    const el = document.createElement('div');
-    el.className = 'fi';
-    el.appendChild(document.createTextNode('«' + f + '»'));
-    const ch = document.createElement('span');
-    ch.className = 'ch';
-    ch.textContent = 'kopier';
-    el.appendChild(ch);
-    el.addEventListener('click', () => {
-      navigator.clipboard.writeText('«' + f + '»').catch(() => {});
-      el.style.background = '#d4e8d4';
-      setTimeout(() => { el.style.background = ''; }, 700);
-    });
-    flist.appendChild(el);
+    card.appendChild(title);
+    card.appendChild(forklaring);
+    grid.appendChild(card);
   });
 
-  formCard.appendChild(formH3);
-  formCard.appendChild(flist);
-  grid.appendChild(formCard);
   sec.appendChild(grid);
 }
 
@@ -702,7 +689,7 @@ function revealUtfordring() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const tabIds = ['flashcards','sammendrag','sporsmal','utfordring','nokkelBegreper','strategi'];
+  const tabIds = ['flashcards','sammendrag','sporsmal','utfordring','nokkelBegreper','sammenligning'];
   document.querySelectorAll('nav button').forEach((btn, i) => {
     btn.addEventListener('click', () => showSection(tabIds[i], btn));
   });
@@ -731,14 +718,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (startBtn) startBtn.addEventListener('click', startUtfordring);
   const revBtn = document.getElementById('crevbtn');
   if (revBtn) revBtn.addEventListener('click', revealUtfordring);
-  document.querySelectorAll('.fi').forEach(fi => {
-    fi.addEventListener('click', () => {
-      const text = fi.firstChild ? fi.firstChild.textContent.trim() : '';
-      navigator.clipboard.writeText(text).catch(() => {});
-      fi.style.background = '#d4e8d4';
-      setTimeout(() => { fi.style.background = ''; }, 700);
-    });
-  });
   fcUpdate();
 });
 `;
