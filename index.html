@@ -190,8 +190,12 @@ function setFile(file) {
     errEl.textContent = 'Kun PDF og DOCX st\u00f8ttes.';
     return;
   }
-  if (file.size > 3 * 1024 * 1024) {
-    errEl.textContent = 'Filen er for stor. Maks 3MB for PDF (DOCX inntil 20MB).';
+  const isPdf = mime === 'application/pdf';
+  const maxSize = isPdf ? 3 * 1024 * 1024 : 20 * 1024 * 1024;
+  if (file.size > maxSize) {
+    errEl.textContent = isPdf
+      ? 'PDF-filen er for stor. Maks 3MB.'
+      : 'DOCX-filen er for stor. Maks 20MB.';
     return;
   }
   selectedFile = file;
