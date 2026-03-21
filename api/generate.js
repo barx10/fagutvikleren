@@ -60,11 +60,11 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
 
 Trekk kun ut ord som ville kreve forklaring for en person utenfor fagfeltet. Inkluder ikke allmenne norske ord (f.eks. «kontekstuelt», «syntese»). Hvis teksten ikke inneholder spesialiserte fagtermer, returner en tom liste.
 Koble sentrale begreper til konkrete paralleller i andre navngitte fagfelt for tverrfaglig. Beskriv parallellen utdypende (2-3 setninger), ikke bare med et stikkord.
-For argumentasjon: presenter et balansert akademisk overblikk. Hver påstand skal ha minst 2 motargumenter med begrunnelse — inkluder metodologisk kritikk (utvalg, design, konfounders, ekstern validitet), ikke bare alternative perspektiver. Vurderingen skal eksplisitt adressere evidensstyrke og hva som mangler for å trekke sikre konklusjoner.
+For argumentasjon: identifiser ALLE sentrale påstander i teksten — en fagartikkel har alltid flere enn én. Presenter et balansert akademisk overblikk for hver. Hver påstand skal ha minst 2 motargumenter med begrunnelse — inkluder metodologisk kritikk (utvalg, design, konfounders, ekstern validitet), ikke bare alternative perspektiver. Vurderingen skal eksplisitt adressere evidensstyrke og hva som mangler for å trekke sikre konklusjoner. Det er KRITISK at du genererer minst 4 argumentasjoner — aldri bare 1.
 For sammendrag: siste tema skal alltid være «Metodekritikk» med konkrete svakheter i studiens design, utvalg, operasjonalisering og generaliserbarhet. Vær spesifikk — ikke skriv «studien har begrensninger», men hvilke og hvorfor de betyr noe.
 For Q&A: minst 3 av spørsmålene skal utfordre premissene i teksten (f.eks. «Er det rimelig å konkludere X basert på dette designet?»), ikke bare be om gjengivelse av funn.
 
-Generer minimum: 15 flashcards, 3-5 sammendrag-temaer pluss metodekritikk (3-6 punkter hver), 10 Q&A-par (minst 3 kritiske), 4-6 argumentasjoner, 6-15 ordforklaringer, 5-8 tverrfaglige koblinger.`;
+Generer minimum: 15 flashcards fordelt på alle fire kategorier (kjerne, fakta, begrep, eksempel — minst 2 av hver), 3-5 sammendrag-temaer pluss metodekritikk (3-6 punkter hver), 10 Q&A-par (minst 3 kritiske), 4-6 argumentasjoner (ALDRI færre enn 4), 6-15 ordforklaringer, 5-8 tverrfaglige koblinger.`;
 }
 
 async function callGemini(apiKey, model, prompt, text) {
