@@ -783,7 +783,7 @@ function fcFlip() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const tabIds = ['sammendrag','argumentasjon','ordforklaring','sporsmal','tverrfaglig','flashcards'];
+  const tabIds = ['sammendrag','sporsmal','argumentasjon','kildekritikk','flashcards'];
   document.querySelectorAll('nav button').forEach((btn, i) => {
     btn.addEventListener('click', () => showSection(tabIds[i], btn));
   });
