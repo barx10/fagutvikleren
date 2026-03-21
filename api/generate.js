@@ -50,27 +50,36 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
   "argumentasjon": [
     { "pastand": "Hovedpåstand fra fagstoffet", "argumenter": ["Argument 1", "Argument 2"], "evidens": "Fakta eller kildehenvisning som støtter", "motargumenter": ["Innvending 1 med begrunnelse", "Innvending 2 med begrunnelse"], "vurdering": "Kort akademisk vurdering av påstandens styrke og begrensninger" }
   ],
-  "ordforklaring": [
-    { "ord": "Fremmedord eller fagterm fra teksten", "forklaring": "Kort, presis definisjon", "eksempel": "Ordet brukt i en setning fra fagstoffet" }
-  ],
-  "tverrfaglig": [
-    { "begrep": "Begrep fra fagstoffet", "fagfelt": "Konkret navngitt fagfelt", "parallell": "Utdypende beskrivelse av tilsvarende fenomen i det andre fagfeltet (2-3 setninger)", "innsikt": "Hva du lærer av å se det gjennom denne linsen" }
-  ]
+  "kildekritikk": {
+    "kildevurdering": {
+      "forfatter": "Vurdering av forfatterens autoritet, tilknytning og mulige interessekonflikter",
+      "publiseringskanal": "Type publikasjon — fagfellevurdert tidsskrift, forlag, rapport, blogg osv.",
+      "finansiering": "Hvem finansierte forskningen og mulige implikasjoner for objektivitet",
+      "aktualitet": "Når publisert og om funnene fortsatt er relevante"
+    },
+    "metodekritikk": ["Konkret svakhet 1", "Konkret svakhet 2"],
+    "argumentasjonskritikk": ["Konkret logisk feilslutning eller gap 1", "Konkret gap 2"],
+    "samlet": {
+      "styrke": "sterk|middels|svak",
+      "vurdering": "Helhetlig kvalitativ vurdering av kildens troverdighet og akademiske kvalitet",
+      "bruksomrade": "Hva denne kilden kan brukes til",
+      "begrensninger": "Hva denne kilden IKKE kan brukes til"
+    }
+  }
 }
 
-Trekk kun ut ord som ville kreve forklaring for en person utenfor fagfeltet. Inkluder ikke allmenne norske ord (f.eks. «kontekstuelt», «syntese»). Hvis teksten ikke inneholder spesialiserte fagtermer, returner en tom liste.
-Koble sentrale begreper til konkrete paralleller i andre navngitte fagfelt for tverrfaglig. Beskriv parallellen utdypende (2-3 setninger), ikke bare med et stikkord.
+For flashcards: inkluder også fagtermer og fremmedord fra teksten som cat "begrep" — forsiden er fagtermen, baksiden er kort definisjon. Trekk kun ut ord som ville kreve forklaring for en person utenfor fagfeltet.
 For argumentasjon: identifiser ALLE sentrale påstander i teksten — en fagartikkel har alltid flere enn én. Presenter et balansert akademisk overblikk for hver. Hver påstand skal ha minst 2 motargumenter med begrunnelse — inkluder metodologisk kritikk (utvalg, design, konfounders, ekstern validitet), ikke bare alternative perspektiver. Vurderingen skal eksplisitt adressere evidensstyrke og hva som mangler for å trekke sikre konklusjoner. Det er KRITISK at du genererer minst 4 argumentasjoner — aldri bare 1.
-For sammendrag: siste tema skal alltid være «Metodekritikk» med konkrete svakheter i studiens design, utvalg, operasjonalisering og generaliserbarhet. Vær spesifikk — ikke skriv «studien har begrensninger», men hvilke og hvorfor de betyr noe.
+For sammendrag: presenter 3-5 temaer med nøkkelpunkter. IKKE inkluder metodekritikk her — det dekkes av kildekritikk-seksjonen.
 For Q&A: minst 3 av spørsmålene skal utfordre premissene i teksten (f.eks. «Er det rimelig å konkludere X basert på dette designet?»), ikke bare be om gjengivelse av funn.
+For kildekritikk: vær spesifikk og konkret i alle vurderinger. Metodekritikk skal adressere forskningsdesign, utvalg, operasjonalisering, konfounders og generaliserbarhet. Argumentasjonskritikk skal identifisere konkrete logiske feilslutninger, gap mellom evidens og konklusjon, og utelatte perspektiver. Samlet styrke skal være «sterk» kun for fagfellevurderte studier med solid design, «middels» for studier med noen svakheter, «svak» for studier med vesentlige metodologiske problemer. Generer minst 3 punkter for metodekritikk og minst 2 for argumentasjonskritikk.
 
 Minimumskrav (ALLE må oppfylles, ingen unntak):
 - 15 flashcards fordelt på alle fire kategorier (kjerne, fakta, begrep, eksempel — minst 2 av hver)
-- 3-5 sammendrag-temaer pluss metodekritikk (3-6 punkter hver)
+- 3-5 sammendrag-temaer (3-6 punkter hver)
 - 10 Q&A-par (ALDRI færre enn 10, minst 3 kritiske)
 - 4-6 argumentasjoner (ALDRI færre enn 4)
-- 6-15 ordforklaringer
-- 5-8 tverrfaglige koblinger`;
+- Komplett kildekritikk med alle fire deler utfylt`;
 }
 
 async function callGemini(apiKey, model, prompt, text) {
