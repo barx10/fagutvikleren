@@ -35,8 +35,11 @@ function buildPrompt(audience) {
 ${audienceInstruction}
 Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
 {
-  "title": "Fagstoff-tittel",
+  "title": "Fagstoff-tittel på norsk",
   "subject": "Fag/emne",
+  "originalTitle": "Originaltittel på kildens språk (hvis annet enn norsk, ellers samme som title)",
+  "authors": "Forfatter(e) hvis nevnt i teksten, ellers tom streng",
+  "published": "Publiseringsår eller dato hvis nevnt, ellers tom streng",
   "flashcards": [
     { "front": "Spørsmål eller begrep", "back": "Svar eller definisjon", "cat": "kjerne|fakta|begrep|eksempel" }
   ],

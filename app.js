@@ -299,7 +299,20 @@ function showResult(data) {
   document.getElementById('upload-view').style.display = 'none';
   document.getElementById('result-view').classList.add('visible');
   document.getElementById('page-title').textContent = data.title || 'Læringsverktøy';
-  document.getElementById('page-sub').textContent = data.subject || '';
+  var metaParts = [data.subject || ''];
+  if (data.originalTitle && data.originalTitle !== data.title) metaParts.push(data.originalTitle);
+  var metaLine2 = [];
+  if (data.authors) metaLine2.push(data.authors);
+  if (data.published) metaLine2.push(data.published);
+  document.getElementById('page-sub').textContent = metaParts.join(' · ');
+  var metaEl = document.getElementById('page-meta');
+  if (!metaEl) {
+    metaEl = document.createElement('div');
+    metaEl.id = 'page-meta';
+    metaEl.style.cssText = 'font-size:.76rem;color:var(--gl);margin-top:2px;opacity:.7;';
+    document.getElementById('page-sub').after(metaEl);
+  }
+  metaEl.textContent = metaLine2.length ? metaLine2.join(' · ') : '';
 
   const actions = document.getElementById('header-actions');
   while (actions.firstChild) actions.removeChild(actions.firstChild);
@@ -327,12 +340,12 @@ function showSection(id, btn) {
 
 function renderTabs(data) {
   const tabs = [
-    { id: 'flashcards', label: 'Flashcards' },
     { id: 'sammendrag', label: 'Sammendrag' },
-    { id: 'sporsmal', label: 'Spørsmål & Svar' },
     { id: 'argumentasjon', label: 'Argumentasjon' },
     { id: 'ordforklaring', label: 'Ordforklaring' },
+    { id: 'sporsmal', label: 'Spørsmål & Svar' },
     { id: 'tverrfaglig', label: 'Tverrfaglig' },
+    { id: 'flashcards', label: 'Flashcards' },
   ];
 
   const nav = document.getElementById('tab-nav');
@@ -734,7 +747,7 @@ function fcFlip() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const tabIds = ['flashcards','sammendrag','sporsmal','argumentasjon','ordforklaring','tverrfaglig'];
+  const tabIds = ['sammendrag','argumentasjon','ordforklaring','sporsmal','tverrfaglig','flashcards'];
   document.querySelectorAll('nav button').forEach((btn, i) => {
     btn.addEventListener('click', () => showSection(tabIds[i], btn));
   });
@@ -776,7 +789,8 @@ document.addEventListener('DOMContentLoaded', () => {
     '<body>',
     '<header><div>',
     '<h1>' + safeTitle + '</h1>',
-    '<div style="font-size:.8rem;color:var(--gl);margin-top:4px;opacity:.85;">' + safeSubject + '</div>',
+    '<div style="font-size:.8rem;color:var(--gl);margin-top:4px;opacity:.85;">' + esc([data.subject || '', (data.originalTitle && data.originalTitle !== data.title ? data.originalTitle : '')].filter(Boolean).join(' · ')) + '</div>',
+    (data.authors || data.published ? '<div style="font-size:.76rem;color:var(--gl);margin-top:2px;opacity:.7;">' + esc([data.authors, data.published].filter(Boolean).join(' · ')) + '</div>' : ''),
     '</div></header>',
     '<nav id="tab-nav">' + navHTML + '</nav>',
     '<main id="tab-content">' + contentHTML + '</main>',
