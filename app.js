@@ -597,31 +597,31 @@ function renderArgumentasjon(items) {
 // --- Kildekritikk ---
 function renderKildekritikk(data) {
   if (!data) return;
-  var sec = document.getElementById('kildekritikk');
+  const sec = document.getElementById('kildekritikk');
 
-  var secTitle = document.createElement('div');
+  const secTitle = document.createElement('div');
   secTitle.className = 'sec-title';
   secTitle.textContent = 'Kildekritikk';
-  var secSub = document.createElement('div');
+  const secSub = document.createElement('div');
   secSub.className = 'sec-sub';
   secSub.textContent = 'Systematisk vurdering av kildens troverdighet og kvalitet.';
   sec.appendChild(secTitle);
   sec.appendChild(secSub);
 
-  var grid = document.createElement('div');
+  const grid = document.createElement('div');
   grid.className = 'begrep-grid';
 
   // Kort 1: Kildevurdering
   if (data.kildevurdering) {
-    var kv = data.kildevurdering;
-    var card1 = document.createElement('div');
+    const kv = data.kildevurdering;
+    const card1 = document.createElement('div');
     card1.className = 'begrep-card';
-    var t1 = document.createElement('h3');
+    const t1 = document.createElement('h3');
     t1.className = 'begrep-title';
     t1.textContent = 'Kildevurdering';
     card1.appendChild(t1);
 
-    var fields = [
+    const fields = [
       { label: 'Forfatter', value: kv.forfatter },
       { label: 'Publiseringskanal', value: kv.publiseringskanal },
       { label: 'Finansiering', value: kv.finansiering },
@@ -629,12 +629,12 @@ function renderKildekritikk(data) {
     ];
     fields.forEach(function(f) {
       if (!f.value) return;
-      var row = document.createElement('div');
+      const row = document.createElement('div');
       row.className = 'kk-field';
-      var label = document.createElement('span');
+      const label = document.createElement('span');
       label.className = 'kk-label';
       label.textContent = f.label + ': ';
-      var val = document.createElement('span');
+      const val = document.createElement('span');
       val.textContent = f.value;
       row.appendChild(label);
       row.appendChild(val);
@@ -645,16 +645,16 @@ function renderKildekritikk(data) {
 
   // Kort 2: Metodekritikk
   if (data.metodekritikk && data.metodekritikk.length) {
-    var card2 = document.createElement('div');
+    const card2 = document.createElement('div');
     card2.className = 'begrep-card';
-    var t2 = document.createElement('h3');
+    const t2 = document.createElement('h3');
     t2.className = 'begrep-title';
     t2.textContent = 'Metodekritikk';
     card2.appendChild(t2);
-    var ul2 = document.createElement('ul');
+    const ul2 = document.createElement('ul');
     ul2.className = 'arg-list';
     data.metodekritikk.forEach(function(p) {
-      var li = document.createElement('li');
+      const li = document.createElement('li');
       li.textContent = p;
       ul2.appendChild(li);
     });
@@ -664,16 +664,16 @@ function renderKildekritikk(data) {
 
   // Kort 3: Argumentasjonskritikk
   if (data.argumentasjonskritikk && data.argumentasjonskritikk.length) {
-    var card3 = document.createElement('div');
+    const card3 = document.createElement('div');
     card3.className = 'begrep-card';
-    var t3 = document.createElement('h3');
+    const t3 = document.createElement('h3');
     t3.className = 'begrep-title';
     t3.textContent = 'Argumentasjonskritikk';
     card3.appendChild(t3);
-    var ul3 = document.createElement('ul');
+    const ul3 = document.createElement('ul');
     ul3.className = 'arg-list';
     data.argumentasjonskritikk.forEach(function(p) {
-      var li = document.createElement('li');
+      const li = document.createElement('li');
       li.textContent = p;
       ul3.appendChild(li);
     });
@@ -683,50 +683,52 @@ function renderKildekritikk(data) {
 
   // Kort 4: Samlet kildevurdering
   if (data.samlet) {
-    var card4 = document.createElement('div');
+    const card4 = document.createElement('div');
     card4.className = 'begrep-card';
-    var t4 = document.createElement('h3');
+    const t4 = document.createElement('h3');
     t4.className = 'begrep-title';
     t4.textContent = 'Samlet kildevurdering';
     card4.appendChild(t4);
 
     // Trafikklys
-    var indicator = document.createElement('div');
-    indicator.className = 'kk-styrke kk-styrke--' + (data.samlet.styrke || 'middels');
-    var dot = document.createElement('span');
+    const validStyrke = ['sterk', 'middels', 'svak'];
+    const styrke = validStyrke.indexOf(data.samlet.styrke) !== -1 ? data.samlet.styrke : 'middels';
+    const indicator = document.createElement('div');
+    indicator.className = 'kk-styrke kk-styrke--' + styrke;
+    const dot = document.createElement('span');
     dot.className = 'kk-dot';
-    var styrkeLabel = { sterk: 'Sterk kilde', middels: 'Middels kilde', svak: 'Svak kilde' };
-    var styrkeTxt = document.createElement('span');
+    const styrkeLabel = { sterk: 'Sterk kilde', middels: 'Middels kilde', svak: 'Svak kilde' };
+    const styrkeTxt = document.createElement('span');
     styrkeTxt.textContent = styrkeLabel[data.samlet.styrke] || 'Vurdering ikke tilgjengelig';
     indicator.appendChild(dot);
     indicator.appendChild(styrkeTxt);
     card4.appendChild(indicator);
 
     if (data.samlet.vurdering) {
-      var vurd = document.createElement('div');
+      const vurd = document.createElement('div');
       vurd.className = 'begrep-forklaring';
       vurd.textContent = data.samlet.vurdering;
       card4.appendChild(vurd);
     }
     if (data.samlet.bruksomrade) {
-      var bruk = document.createElement('div');
+      const bruk = document.createElement('div');
       bruk.className = 'kk-field';
-      var brukLabel = document.createElement('span');
+      const brukLabel = document.createElement('span');
       brukLabel.className = 'kk-label';
       brukLabel.textContent = 'Kan brukes til: ';
-      var brukVal = document.createElement('span');
+      const brukVal = document.createElement('span');
       brukVal.textContent = data.samlet.bruksomrade;
       bruk.appendChild(brukLabel);
       bruk.appendChild(brukVal);
       card4.appendChild(bruk);
     }
     if (data.samlet.begrensninger) {
-      var begr = document.createElement('div');
+      const begr = document.createElement('div');
       begr.className = 'kk-field';
-      var begrLabel = document.createElement('span');
+      const begrLabel = document.createElement('span');
       begrLabel.className = 'kk-label';
       begrLabel.textContent = 'Kan IKKE brukes til: ';
-      var begrVal = document.createElement('span');
+      const begrVal = document.createElement('span');
       begrVal.textContent = data.samlet.begrensninger;
       begr.appendChild(begrLabel);
       begr.appendChild(begrVal);
