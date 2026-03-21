@@ -27,14 +27,33 @@ describe('buildPrompt', () => {
     expect(buildPrompt()).toMatch(/JSON/);
   });
 
-  test('spesifiserer alle seks seksjoner', () => {
+  test('spesifiserer alle fem seksjoner', () => {
     const prompt = buildPrompt();
-    ['flashcards', 'sammendrag', 'qa', 'argumentasjon', 'ordforklaring', 'tverrfaglig']
+    ['flashcards', 'sammendrag', 'qa', 'argumentasjon', 'kildekritikk']
       .forEach(key => expect(prompt).toMatch(key));
+  });
+
+  test('inneholder ikke ordforklaring eller tverrfaglig', () => {
+    const prompt = buildPrompt();
+    expect(prompt).not.toMatch(/"ordforklaring"/);
+    expect(prompt).not.toMatch(/"tverrfaglig"/);
   });
 
   test('inneholder ingen elevtilpasning', () => {
     const prompt = buildPrompt();
     expect(prompt).not.toMatch(/elev på 13 år/);
+  });
+
+  test('kildekritikk inkluderer kildevurdering, metodekritikk, argumentasjonskritikk og samlet', () => {
+    const prompt = buildPrompt();
+    expect(prompt).toMatch(/kildevurdering/);
+    expect(prompt).toMatch(/metodekritikk/i);
+    expect(prompt).toMatch(/argumentasjonskritikk/);
+    expect(prompt).toMatch(/samlet/);
+  });
+
+  test('samlet vurdering inkluderer styrke-indikator', () => {
+    const prompt = buildPrompt();
+    expect(prompt).toMatch(/sterk\|middels\|svak/);
   });
 });
