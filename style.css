@@ -97,6 +97,17 @@ main{padding:32px 36px;max-width:920px}
 .arg-mot-list li{font-size:.86rem;line-height:1.6;color:#444;padding:4px 0;display:flex;gap:8px}
 .arg-mot-list li::before{content:'↔';color:var(--red);flex-shrink:0}
 .arg-vurdering{margin-top:10px;padding:10px 14px;background:rgba(45,74,53,.06);border-radius:4px;font-size:.84rem;line-height:1.6;color:var(--dg);font-style:italic}
+.kk-field{font-size:.87rem;line-height:1.6;color:#333;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+.kk-field:last-child{border-bottom:none}
+.kk-label{font-weight:600;color:var(--dg)}
+.kk-styrke{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:4px;font-size:.88rem;font-weight:600;margin-bottom:10px}
+.kk-styrke--sterk{background:#d1fae5;color:#065f46}
+.kk-styrke--middels{background:#fef3c7;color:#92400e}
+.kk-styrke--svak{background:#fee2e2;color:#991b1b}
+.kk-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.kk-styrke--sterk .kk-dot{background:#059669}
+.kk-styrke--middels .kk-dot{background:#d97706}
+.kk-styrke--svak .kk-dot{background:#dc2626}
 @media(max-width:600px){header{padding:18px;flex-direction:column;align-items:flex-start;gap:10px}main{padding:20px 14px}.upload-card{padding:32px 20px}.sgrid{grid-template-columns:1fr}}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.visible{display:flex}
