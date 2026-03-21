@@ -44,16 +44,29 @@ describe('buildPrompt', () => {
     expect(prompt).not.toMatch(/elev på 13 år/);
   });
 
-  test('kildekritikk inkluderer kildevurdering, metodekritikk, argumentasjonskritikk og samlet', () => {
+  test('kildekritikk inkluderer kildevurdering, metodekritikk, samlet_kilde, pastandsanalyse, perspektiv og samlet_innhold', () => {
     const prompt = buildPrompt();
     expect(prompt).toMatch(/kildevurdering/);
     expect(prompt).toMatch(/metodekritikk/i);
-    expect(prompt).toMatch(/argumentasjonskritikk/);
-    expect(prompt).toMatch(/samlet/);
+    expect(prompt).toMatch(/samlet_kilde/);
+    expect(prompt).toMatch(/pastandsanalyse/);
+    expect(prompt).toMatch(/perspektiv/);
+    expect(prompt).toMatch(/samlet_innhold/);
+    expect(prompt).not.toMatch(/"argumentasjonskritikk"/);
   });
 
-  test('samlet vurdering inkluderer styrke-indikator', () => {
+  test('samlet vurdering inkluderer styrke-indikator for både kilde og innhold', () => {
     const prompt = buildPrompt();
-    expect(prompt).toMatch(/sterk\|middels\|svak/);
+    const matches = prompt.match(/sterk\|middels\|svak/g);
+    expect(matches).not.toBeNull();
+    expect(matches.length).toBe(2);
+  });
+
+  test('prompt inneholder instruksjoner for påstandsanalyse og perspektiv', () => {
+    const prompt = buildPrompt();
+    expect(prompt).toMatch(/påstandsanalyse/i);
+    expect(prompt).toMatch(/perspektiv/i);
+    expect(prompt).toMatch(/konsensus/i);
+    expect(prompt).toMatch(/bias/i);
   });
 });

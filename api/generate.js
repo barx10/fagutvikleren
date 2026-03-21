@@ -60,12 +60,27 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
       "aktualitet": "Når publisert og om funnene fortsatt er relevante"
     },
     "metodekritikk": ["Konkret svakhet 1", "Konkret svakhet 2"],
-    "argumentasjonskritikk": ["Konkret logisk feilslutning eller gap 1", "Konkret gap 2"],
-    "samlet": {
+    "samlet_kilde": {
       "styrke": "sterk|middels|svak",
       "vurdering": "Helhetlig kvalitativ vurdering av kildens troverdighet og akademiske kvalitet",
       "bruksomrade": "Hva denne kilden kan brukes til",
       "begrensninger": "Hva denne kilden IKKE kan brukes til"
+    },
+    "pastandsanalyse": [
+      {
+        "pastand": "Nøkkelpåstand fra teksten",
+        "underbygging": "Vurdering av om evidensen i teksten faktisk underbygger påstanden",
+        "konsensus": "Hvordan påstanden står seg mot etablert forskning og konsensus i feltet"
+      }
+    ],
+    "perspektiv": {
+      "ramme": "Overordnet teoretisk eller ideologisk posisjon teksten opererer innenfor",
+      "eksempler": ["Konkret eksempel på bias — ordvalg, framing eller kildeseleksjon"],
+      "utelatt": ["Perspektiv eller vinkling som mangler i teksten"]
+    },
+    "samlet_innhold": {
+      "styrke": "sterk|middels|svak",
+      "vurdering": "Kvalitativ helhetsvurdering av innholdets troverdighet og balanse"
     }
   }
 }
@@ -74,14 +89,17 @@ For flashcards: inkluder også fagtermer og fremmedord fra teksten som cat "begr
 For argumentasjon: identifiser ALLE sentrale påstander i teksten — en fagartikkel har alltid flere enn én. Presenter et balansert akademisk overblikk for hver. Hver påstand skal ha minst 2 motargumenter med begrunnelse — inkluder metodologisk kritikk (utvalg, design, konfounders, ekstern validitet), ikke bare alternative perspektiver. Vurderingen skal eksplisitt adressere evidensstyrke og hva som mangler for å trekke sikre konklusjoner. Det er KRITISK at du genererer minst 4 argumentasjoner — aldri bare 1.
 For sammendrag: presenter 4-5 temaer med nøkkelpunkter (4-6 punkter per tema). Hvert punkt skal være substansielt og spesifikt — ikke generelle oppsummeringer. Inkluder konkrete detaljer, tall, navn og funn fra teksten. IKKE inkluder metodekritikk her — det dekkes av kildekritikk-seksjonen. Sammendraget skal gi leseren en grundig forståelse av innholdet uten å måtte lese originalteksten.
 For Q&A: minst 3 av spørsmålene skal utfordre premissene i teksten (f.eks. «Er det rimelig å konkludere X basert på dette designet?»), ikke bare be om gjengivelse av funn.
-For kildekritikk: vær spesifikk og konkret i alle vurderinger. Metodekritikk skal adressere forskningsdesign, utvalg, operasjonalisering, konfounders og generaliserbarhet. Argumentasjonskritikk skal identifisere konkrete logiske feilslutninger, gap mellom evidens og konklusjon, og utelatte perspektiver. Samlet styrke skal være «sterk» kun for fagfellevurderte studier med solid design, «middels» for studier med noen svakheter, «svak» for studier med vesentlige metodologiske problemer. Generer minst 3 punkter for metodekritikk og minst 2 for argumentasjonskritikk.
+For kildekritikk: vær spesifikk og konkret i alle vurderinger. Metodekritikk skal adressere forskningsdesign, utvalg, operasjonalisering, konfounders og generaliserbarhet. Samlet kilde-styrke skal være «sterk» kun for fagfellevurderte studier med solid design, «middels» for studier med noen svakheter, «svak» for studier med vesentlige metodologiske problemer. Generer minst 3 punkter for metodekritikk.
+For påstandsanalyse: identifiser 2-4 nøkkelpåstander, vurder om evidensen i teksten faktisk underbygger dem (intern konsistens), og plasser dem mot etablert konsensus i feltet (ekstern validering).
+For perspektiv og bias: beskriv først den overordnede teoretiske eller ideologiske rammen teksten opererer innenfor, gi deretter 2-3 konkrete eksempler på hvordan dette viser seg (ordvalg, kildeseleksjon, framing av resultater), og list 2-3 perspektiver som er utelatt.
+Samlet innholdsvurdering: «sterk» kun dersom påstandene er godt underbygget internt OG i tråd med feltets konsensus, «middels» dersom noe er ubalansert eller mangelfullt underbygget, «svak» dersom vesentlige påstander mangler evidens eller strider mot konsensus.
 
 Minimumskrav (ALLE må oppfylles, ingen unntak):
 - 15 flashcards fordelt på alle fire kategorier (kjerne, fakta, begrep, eksempel — minst 2 av hver)
 - 4-5 sammendrag-temaer (4-6 punkter hver, ALDRI færre enn 4 temaer)
 - 10 Q&A-par (ALDRI færre enn 10, minst 3 kritiske)
 - 4-6 argumentasjoner (ALDRI færre enn 4)
-- Komplett kildekritikk med alle fire deler utfylt`;
+- Komplett kildekritikk med alle seks deler utfylt (kildevurdering, metodekritikk, samlet_kilde, pastandsanalyse, perspektiv, samlet_innhold)`;
 }
 
 async function callGemini(apiKey, model, prompt, text) {
