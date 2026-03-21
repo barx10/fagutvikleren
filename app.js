@@ -329,9 +329,9 @@ function renderTabs(data) {
     { id: 'flashcards', label: 'Flashcards' },
     { id: 'sammendrag', label: 'Sammendrag' },
     { id: 'sporsmal', label: 'Spørsmål & Svar' },
-    { id: 'utfordring', label: 'Utfordring' },
-    { id: 'nokkelBegreper', label: 'Nøkkelbegreper' },
-    { id: 'sammenligning', label: 'Sammenligning' },
+    { id: 'argumentasjon', label: 'Argumentasjon' },
+    { id: 'ordforklaring', label: 'Ordforklaring' },
+    { id: 'tverrfaglig', label: 'Tverrfaglig' },
   ];
 
   const nav = document.getElementById('tab-nav');
@@ -355,9 +355,9 @@ function renderTabs(data) {
   renderFlashcards(data.flashcards);
   renderSammendrag(data.sammendrag);
   renderQA(data.qa);
-  renderUtfordring(data.utfordring);
-  renderNokkelBegreper(data.nokkelBegreper);
-  renderSammenligning(data.sammenligning);
+  renderArgumentasjon(data.argumentasjon);
+  renderOrdforklaring(data.ordforklaring);
+  renderTverrfaglig(data.tverrfaglig);
 }
 
 // --- Flashcards ---
@@ -520,128 +520,17 @@ function renderQA(qaItems) {
   sec.appendChild(grid);
 }
 
-// --- Utfordring ---
-let _utfordringPool = [], _utfordringTimer = null;
-
-function renderUtfordring(items) {
-  _utfordringPool = items;
-  const sec = document.getElementById('utfordring');
-  sec.innerHTML = '<div class="sec-title">Utfordringsmodus</div><div class="sec-sub">Svar høyt på 60 sekunder, se fasit.</div>';
-
-  const startBtn = document.createElement('button');
-  startBtn.className = 'cbtn-all';
-  startBtn.textContent = 'Tilfeldig spørsmål';
-  startBtn.id = 'start-utfordring';
-  startBtn.addEventListener('click', startUtfordring);
-
-  const cq = document.createElement('div');
-  cq.className = 'cqdis';
-  cq.id = 'cq';
-
-  const timerWrap = document.createElement('div');
-  timerWrap.className = 'tbar-wrap';
-  timerWrap.id = 'ctimer';
-  timerWrap.innerHTML = '<div class="tbar-bg"><div class="tbar" id="cbar"></div></div><div class="tnum" id="csec">60</div>';
-
-  const revBtn = document.createElement('button');
-  revBtn.className = 'revbtn';
-  revBtn.id = 'crevbtn';
-  revBtn.textContent = 'Vis fasit';
-  revBtn.addEventListener('click', revealUtfordring);
-
-  const cans = document.createElement('div');
-  cans.className = 'cadis';
-  cans.id = 'cans';
-
-  sec.appendChild(startBtn);
-  sec.appendChild(cq);
-  sec.appendChild(timerWrap);
-  sec.appendChild(revBtn);
-  sec.appendChild(cans);
-}
-
-function startUtfordring() {
-  clearInterval(_utfordringTimer);
-  const item = _utfordringPool[Math.floor(Math.random() * _utfordringPool.length)];
-  window._utfordringAnswer = item.svar;
-
-  const cq = document.getElementById('cq');
-  cq.className = 'cqdis visible';
-  cq.textContent = item.sporsmal;
-
-  document.getElementById('cans').className = 'cadis';
-  document.getElementById('crevbtn').className = 'revbtn visible';
-
-  let secs = 60;
-  document.getElementById('cbar').style.width = '100%';
-  document.getElementById('cbar').className = 'tbar';
-  document.getElementById('csec').textContent = '60';
-  document.getElementById('ctimer').className = 'tbar-wrap visible';
-
-  _utfordringTimer = setInterval(() => {
-    secs--;
-    document.getElementById('csec').textContent = secs;
-    document.getElementById('cbar').style.width = (secs / 60 * 100) + '%';
-    if (secs <= 20) document.getElementById('cbar').className = 'tbar warn';
-    if (secs <= 10) document.getElementById('cbar').className = 'tbar danger';
-    if (secs <= 0) clearInterval(_utfordringTimer);
-  }, 1000);
-}
-
-function revealUtfordring() {
-  clearInterval(_utfordringTimer);
-  const el = document.getElementById('cans');
-  el.textContent = window._utfordringAnswer;
-  el.className = 'cadis visible';
-}
-
-// --- Nøkkelbegreper ---
-function renderNokkelBegreper(begreper) {
-  const sec = document.getElementById('nokkelBegreper');
-  sec.innerHTML = '<div class="sec-title">Nøkkelbegreper</div><div class="sec-sub">Sentrale begreper og sammenhenger.</div>';
-
-  const grid = document.createElement('div');
-  grid.className = 'begrep-grid';
-
-  begreper.forEach(b => {
-    const card = document.createElement('div');
-    card.className = 'begrep-card';
-
-    const title = document.createElement('div');
-    title.className = 'begrep-title';
-    title.textContent = b.begrep;
-
-    const forklaring = document.createElement('div');
-    forklaring.className = 'begrep-forklaring';
-    forklaring.textContent = b.forklaring;
-
-    card.appendChild(title);
-    card.appendChild(forklaring);
-
-    if (b.sammenheng) {
-      const sammenheng = document.createElement('div');
-      sammenheng.className = 'begrep-sammenheng';
-      sammenheng.textContent = b.sammenheng;
-      card.appendChild(sammenheng);
-    }
-
-    grid.appendChild(card);
-  });
-
-  sec.appendChild(grid);
-}
-
-// --- Sammenligning ---
-function renderSammenligning(items) {
+// --- Argumentasjon ---
+function renderArgumentasjon(items) {
   if (!items || !items.length) return;
-  const sec = document.getElementById('sammenligning');
+  const sec = document.getElementById('argumentasjon');
 
   const secTitle = document.createElement('div');
   secTitle.className = 'sec-title';
-  secTitle.textContent = 'Sammenligning';
+  secTitle.textContent = 'Argumentasjon';
   const secSub = document.createElement('div');
   secSub.className = 'sec-sub';
-  secSub.textContent = 'Koblinger til andre felt og den virkelige verden.';
+  secSub.textContent = 'Hovedpåstander med argumenter, evidens og motargumenter.';
   sec.appendChild(secTitle);
   sec.appendChild(secSub);
 
@@ -654,14 +543,125 @@ function renderSammenligning(items) {
 
     const title = document.createElement('h3');
     title.className = 'begrep-title';
-    title.textContent = item.tema + ' \u2192 ' + item.sammenlignetMed;
+    title.textContent = item.pastand;
 
-    const forklaring = document.createElement('p');
+    card.appendChild(title);
+
+    if (item.argumenter && item.argumenter.length) {
+      const ul = document.createElement('ul');
+      ul.className = 'arg-list';
+      item.argumenter.forEach(function(arg) {
+        const li = document.createElement('li');
+        li.textContent = arg;
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+    }
+
+    if (item.evidens) {
+      const evidens = document.createElement('div');
+      evidens.className = 'begrep-forklaring';
+      evidens.textContent = item.evidens;
+      card.appendChild(evidens);
+    }
+
+    if (item.motargument) {
+      const mot = document.createElement('div');
+      mot.className = 'begrep-sammenheng';
+      mot.textContent = 'Motargument: ' + item.motargument;
+      card.appendChild(mot);
+    }
+
+    grid.appendChild(card);
+  });
+
+  sec.appendChild(grid);
+}
+
+// --- Ordforklaring ---
+function renderOrdforklaring(items) {
+  if (!items || !items.length) return;
+  const sec = document.getElementById('ordforklaring');
+
+  const secTitle = document.createElement('div');
+  secTitle.className = 'sec-title';
+  secTitle.textContent = 'Ordforklaring';
+  const secSub = document.createElement('div');
+  secSub.className = 'sec-sub';
+  secSub.textContent = 'Fremmedord og fagtermer fra teksten.';
+  sec.appendChild(secTitle);
+  sec.appendChild(secSub);
+
+  const grid = document.createElement('div');
+  grid.className = 'begrep-grid';
+
+  items.forEach(function(item) {
+    const card = document.createElement('div');
+    card.className = 'begrep-card';
+
+    const title = document.createElement('div');
+    title.className = 'begrep-title';
+    title.textContent = item.ord;
+
+    const forklaring = document.createElement('div');
     forklaring.className = 'begrep-forklaring';
     forklaring.textContent = item.forklaring;
 
     card.appendChild(title);
     card.appendChild(forklaring);
+
+    if (item.eksempel) {
+      const eksempel = document.createElement('div');
+      eksempel.className = 'begrep-sammenheng';
+      eksempel.textContent = '\u00ab' + item.eksempel + '\u00bb';
+      card.appendChild(eksempel);
+    }
+
+    grid.appendChild(card);
+  });
+
+  sec.appendChild(grid);
+}
+
+// --- Tverrfaglig ---
+function renderTverrfaglig(items) {
+  if (!items || !items.length) return;
+  const sec = document.getElementById('tverrfaglig');
+
+  const secTitle = document.createElement('div');
+  secTitle.className = 'sec-title';
+  secTitle.textContent = 'Tverrfaglig';
+  const secSub = document.createElement('div');
+  secSub.className = 'sec-sub';
+  secSub.textContent = 'Koblinger til andre fagfelt.';
+  sec.appendChild(secTitle);
+  sec.appendChild(secSub);
+
+  const grid = document.createElement('div');
+  grid.className = 'begrep-grid';
+
+  items.forEach(function(item) {
+    const card = document.createElement('div');
+    card.className = 'begrep-card';
+
+    const title = document.createElement('h3');
+    title.className = 'begrep-title';
+    title.textContent = item.begrep + ' \u2192 ' + item.fagfelt;
+
+    const parallell = document.createElement('div');
+    parallell.className = 'begrep-forklaring';
+    parallell.textContent = item.parallell;
+
+    card.appendChild(title);
+    card.appendChild(parallell);
+
+    if (item.innsikt) {
+      const innsikt = document.createElement('div');
+      innsikt.className = 'begrep-sammenheng';
+      innsikt.textContent = item.innsikt;
+      card.appendChild(innsikt);
+    }
+
     grid.appendChild(card);
   });
 
@@ -684,7 +684,6 @@ async function downloadHTML() {
   const standaloneJS = `
 const _d = ${JSON.stringify(data).replace(/<\/script>/gi, '<\\/script>')};
 let _fcCards = _d.flashcards, fcFiltered = [..._d.flashcards], fcCur = 0, fcFlipped = false;
-let _utfordringPool = _d.utfordring, _utfordringTimer = null;
 
 function showSection(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -714,39 +713,8 @@ function fcFlip() {
   document.getElementById('fchint').textContent = fcFlipped ? 'Klikk for å snu tilbake' : 'Klikk for å snu';
 }
 
-function startUtfordring() {
-  clearInterval(_utfordringTimer);
-  const item = _utfordringPool[Math.floor(Math.random() * _utfordringPool.length)];
-  window._ua = item.svar;
-  const cq = document.getElementById('cq');
-  cq.className = 'cqdis visible';
-  cq.textContent = item.sporsmal;
-  document.getElementById('cans').className = 'cadis';
-  document.getElementById('crevbtn').className = 'revbtn visible';
-  let secs = 60;
-  document.getElementById('cbar').style.width = '100%';
-  document.getElementById('cbar').className = 'tbar';
-  document.getElementById('csec').textContent = '60';
-  document.getElementById('ctimer').className = 'tbar-wrap visible';
-  _utfordringTimer = setInterval(() => {
-    secs--;
-    document.getElementById('csec').textContent = secs;
-    document.getElementById('cbar').style.width = (secs/60*100) + '%';
-    if (secs <= 20) document.getElementById('cbar').className = 'tbar warn';
-    if (secs <= 10) document.getElementById('cbar').className = 'tbar danger';
-    if (secs <= 0) clearInterval(_utfordringTimer);
-  }, 1000);
-}
-
-function revealUtfordring() {
-  clearInterval(_utfordringTimer);
-  const el = document.getElementById('cans');
-  el.textContent = window._ua;
-  el.className = 'cadis visible';
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-  const tabIds = ['flashcards','sammendrag','sporsmal','utfordring','nokkelBegreper','sammenligning'];
+  const tabIds = ['flashcards','sammendrag','sporsmal','argumentasjon','ordforklaring','tverrfaglig'];
   document.querySelectorAll('nav button').forEach((btn, i) => {
     btn.addEventListener('click', () => showSection(tabIds[i], btn));
   });
@@ -771,10 +739,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const qq = qi.querySelector('.qq');
     if (qq) qq.addEventListener('click', () => qi.classList.toggle('open'));
   });
-  const startBtn = document.getElementById('start-utfordring');
-  if (startBtn) startBtn.addEventListener('click', startUtfordring);
-  const revBtn = document.getElementById('crevbtn');
-  if (revBtn) revBtn.addEventListener('click', revealUtfordring);
   fcUpdate();
 });
 `;

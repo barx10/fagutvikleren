@@ -29,7 +29,7 @@ describe('buildPrompt', () => {
 
   test('spesifiserer alle seks seksjoner', () => {
     const prompt = buildPrompt();
-    ['flashcards', 'sammendrag', 'qa', 'utfordring', 'nokkelBegreper', 'sammenligning']
+    ['flashcards', 'sammendrag', 'qa', 'argumentasjon', 'ordforklaring', 'tverrfaglig']
       .forEach(key => expect(prompt).toMatch(key));
   });
 

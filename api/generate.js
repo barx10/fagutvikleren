@@ -46,18 +46,21 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
   "qa": [
     { "sporsmal": "Forståelsesspørsmål", "svar": "Utdypende svar", "hint": "Hint til eleven" }
   ],
-  "utfordring": [
-    { "sporsmal": "Testspørsmål", "svar": "Fasitsvar" }
+  "argumentasjon": [
+    { "pastand": "Hovedpåstand fra fagstoffet", "argumenter": ["Argument 1", "Argument 2"], "evidens": "Fakta eller kildehenvisning som støtter", "motargument": "Mulig innvending eller alternativt perspektiv" }
   ],
-  "nokkelBegreper": [
-    { "begrep": "Begrep", "forklaring": "Forklaring", "sammenheng": "Sammenheng med andre begreper" }
+  "ordforklaring": [
+    { "ord": "Fremmedord eller fagterm fra teksten", "forklaring": "Kort, presis definisjon", "eksempel": "Ordet brukt i en setning fra fagstoffet" }
   ],
-  "sammenligning": [
-    { "tema": "Begrep fra fagstoffet", "sammenlignetMed": "Noe fra et annet felt/verden", "forklaring": "Hvordan de ligner/skiller seg" }
+  "tverrfaglig": [
+    { "begrep": "Begrep fra fagstoffet", "fagfelt": "Konkret navngitt fagfelt", "parallell": "Tilsvarende fenomen i det andre fagfeltet", "innsikt": "Hva du lærer av å se det gjennom denne linsen" }
   ]
 }
 
-Generer minimum: 15 flashcards, 3-5 sammendrag-temaer (3-6 punkter hver), 10 Q&A-par, 10 utfordringsspørsmål, 8-12 nøkkelbegreper, 6-10 sammenligninger.`;
+Trekk ut fremmedord, fagtermer og tekniske begreper som faktisk forekommer i teksten for ordforklaring. Ikke inkluder allmenne ord. Hvis teksten ikke inneholder fremmedord, returner en tom liste.
+Koble sentrale begreper til konkrete paralleller i andre navngitte fagfelt for tverrfaglig. Forklar hva koblingen tilfører av forståelse.
+
+Generer minimum: 15 flashcards, 3-5 sammendrag-temaer (3-6 punkter hver), 10 Q&A-par, 4-6 argumentasjoner, 6-15 ordforklaringer, 5-8 tverrfaglige koblinger.`;
 }
 
 async function callGemini(apiKey, model, prompt, text) {
