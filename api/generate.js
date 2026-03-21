@@ -26,13 +26,9 @@ function validateFile(mimeType, size) {
   return null;
 }
 
-function buildPrompt(audience) {
-  const audienceInstruction = audience === 'elev'
-    ? '\nTilpass språket for en elev på 13 år: korte setninger, enkle ord, hverdagslige eksempler, og forklar fagbegreper med en gang de dukker opp.\n'
-    : '';
-
+function buildPrompt() {
   return `Du er en fagperson med bred og dyp kunnskap. Du forklarer presist, korrekt og med gode eksempler. Analyser fagstoffet og generer et strukturert læringsverktøy på norsk.
-${audienceInstruction}
+
 Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
 {
   "title": "Fagstoff-tittel på norsk",
@@ -100,7 +96,7 @@ async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mimeType, size, text, apiKey, model, audience } = req.body;
+  const { mimeType, size, text, apiKey, model } = req.body;
 
   if (mimeType) {
     const validationError = validateFile(mimeType, size);
@@ -111,7 +107,7 @@ async function handler(req, res) {
   if (!apiKey) return res.status(400).json({ error: 'Mangler API-nokkel.' });
   if (!model || !ALL_MODELS.includes(model)) return res.status(400).json({ error: 'Ugyldig modell.' });
 
-  const prompt = buildPrompt(audience);
+  const prompt = buildPrompt();
   const isGoogle = GOOGLE_MODELS.includes(model);
 
   try {

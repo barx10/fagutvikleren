@@ -33,18 +33,7 @@ describe('buildPrompt', () => {
       .forEach(key => expect(prompt).toMatch(key));
   });
 
-  test('voksen-modus inkluderer ikke elevtekst', () => {
-    const prompt = buildPrompt('voksen');
-    expect(prompt).not.toMatch(/elev på 13 år/);
-  });
-
-  test('elev-modus inkluderer enklere språk-instruksjon', () => {
-    const prompt = buildPrompt('elev');
-    expect(prompt).toMatch(/elev på 13 år/);
-    expect(prompt).toMatch(/hverdagslige eksempler/);
-  });
-
-  test('default (ingen argument) inkluderer ikke elevtekst', () => {
+  test('inneholder ingen elevtilpasning', () => {
     const prompt = buildPrompt();
     expect(prompt).not.toMatch(/elev på 13 år/);
   });

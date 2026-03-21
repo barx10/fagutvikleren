@@ -47,9 +47,6 @@ function loadSettings() {
     if (radio && !radio.disabled) radio.checked = true;
   }
 
-  var audience = localStorage.getItem('laerbar_audience') || 'voksen';
-  var audRadio = document.querySelector('input[name="audience"][value="' + audience + '"]');
-  if (audRadio) audRadio.checked = true;
 }
 
 function updateProviderStatus(provider, key) {
@@ -95,9 +92,6 @@ function saveSettings() {
   else localStorage.removeItem('laerbar_openai_key');
 
   if (selectedRadio) localStorage.setItem('laerbar_model', selectedRadio.value);
-
-  var audienceRadio = document.querySelector('input[name="audience"]:checked');
-  if (audienceRadio) localStorage.setItem('laerbar_audience', audienceRadio.value);
 
   closeModal('key-modal');
 }
@@ -274,7 +268,7 @@ async function generate() {
 
     if (!text || !text.trim()) throw new Error('Kunne ikke hente tekst. Sjekk at kilden inneholder lesbar tekst.');
 
-    const body = { text: text, apiKey: apiKey, model: model, audience: localStorage.getItem('laerbar_audience') || 'voksen' };
+    const body = { text: text, apiKey: apiKey, model: model };
 
     const res = await fetch('/api/generate', {
       method: 'POST',
