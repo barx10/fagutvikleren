@@ -604,22 +604,32 @@ function renderKildekritikk(data) {
   secTitle.textContent = 'Kildekritikk';
   const secSub = document.createElement('div');
   secSub.className = 'sec-sub';
-  secSub.textContent = 'Systematisk vurdering av kildens troverdighet og kvalitet.';
+  secSub.textContent = 'Systematisk vurdering av kildens troverdighet og innholdets kvalitet.';
   sec.appendChild(secTitle);
   sec.appendChild(secSub);
 
-  const grid = document.createElement('div');
-  grid.className = 'begrep-grid';
+  // --- Gruppe 1: Kilden ---
+  const grp1Title = document.createElement('h3');
+  grp1Title.className = 'kk-group-title';
+  grp1Title.textContent = 'Kilden';
+  const grp1Sub = document.createElement('div');
+  grp1Sub.className = 'kk-group-sub';
+  grp1Sub.textContent = 'Hvem står bak, og hvordan ble kunnskapen produsert?';
+  sec.appendChild(grp1Title);
+  sec.appendChild(grp1Sub);
+
+  const grid1 = document.createElement('div');
+  grid1.className = 'begrep-grid';
 
   // Kort 1: Kildevurdering
   if (data.kildevurdering) {
     const kv = data.kildevurdering;
-    const card1 = document.createElement('div');
-    card1.className = 'begrep-card';
-    const t1 = document.createElement('h3');
-    t1.className = 'begrep-title';
-    t1.textContent = 'Kildevurdering';
-    card1.appendChild(t1);
+    const card = document.createElement('div');
+    card.className = 'begrep-card';
+    const t = document.createElement('h3');
+    t.className = 'begrep-title';
+    t.textContent = 'Kildevurdering';
+    card.appendChild(t);
 
     const fields = [
       { label: 'Forfatter', value: kv.forfatter },
@@ -638,106 +648,213 @@ function renderKildekritikk(data) {
       val.textContent = f.value;
       row.appendChild(label);
       row.appendChild(val);
-      card1.appendChild(row);
+      card.appendChild(row);
     });
-    grid.appendChild(card1);
+    grid1.appendChild(card);
   }
 
   // Kort 2: Metodekritikk
   if (data.metodekritikk && data.metodekritikk.length) {
-    const card2 = document.createElement('div');
-    card2.className = 'begrep-card';
-    const t2 = document.createElement('h3');
-    t2.className = 'begrep-title';
-    t2.textContent = 'Metodekritikk';
-    card2.appendChild(t2);
-    const ul2 = document.createElement('ul');
-    ul2.className = 'arg-list';
+    const card = document.createElement('div');
+    card.className = 'begrep-card';
+    const t = document.createElement('h3');
+    t.className = 'begrep-title';
+    t.textContent = 'Metodekritikk';
+    card.appendChild(t);
+    const ul = document.createElement('ul');
+    ul.className = 'arg-list';
     data.metodekritikk.forEach(function(p) {
       const li = document.createElement('li');
       li.textContent = p;
-      ul2.appendChild(li);
+      ul.appendChild(li);
     });
-    card2.appendChild(ul2);
-    grid.appendChild(card2);
+    card.appendChild(ul);
+    grid1.appendChild(card);
   }
 
-  // Kort 3: Argumentasjonskritikk
-  if (data.argumentasjonskritikk && data.argumentasjonskritikk.length) {
-    const card3 = document.createElement('div');
-    card3.className = 'begrep-card';
-    const t3 = document.createElement('h3');
-    t3.className = 'begrep-title';
-    t3.textContent = 'Argumentasjonskritikk';
-    card3.appendChild(t3);
-    const ul3 = document.createElement('ul');
-    ul3.className = 'arg-list';
-    data.argumentasjonskritikk.forEach(function(p) {
-      const li = document.createElement('li');
-      li.textContent = p;
-      ul3.appendChild(li);
+  // Kort 3: Samlet kildevurdering
+  var samletKilde = data.samlet_kilde || data.samlet;
+  if (samletKilde) {
+    grid1.appendChild(renderSamletCard('Samlet kildevurdering', 'kilde', samletKilde));
+  }
+
+  sec.appendChild(grid1);
+
+  // --- Gruppe 2: Innholdet ---
+  const grp2Title = document.createElement('h3');
+  grp2Title.className = 'kk-group-title';
+  grp2Title.textContent = 'Innholdet';
+  const grp2Sub = document.createElement('div');
+  grp2Sub.className = 'kk-group-sub';
+  grp2Sub.textContent = 'Hva påstås, og hva er utelatt?';
+  sec.appendChild(grp2Title);
+  sec.appendChild(grp2Sub);
+
+  const grid2 = document.createElement('div');
+  grid2.className = 'begrep-grid';
+
+  // Kort 4: Påstandsanalyse
+  if (data.pastandsanalyse && data.pastandsanalyse.length) {
+    const card = document.createElement('div');
+    card.className = 'begrep-card';
+    const t = document.createElement('h3');
+    t.className = 'begrep-title';
+    t.textContent = 'Påstandsanalyse';
+    card.appendChild(t);
+
+    data.pastandsanalyse.forEach(function(pa) {
+      const paDiv = document.createElement('div');
+      paDiv.className = 'kk-pastand';
+      const paTitle = document.createElement('div');
+      paTitle.className = 'kk-pastand-title';
+      paTitle.textContent = pa.pastand;
+      paDiv.appendChild(paTitle);
+
+      if (pa.underbygging) {
+        const ub = document.createElement('div');
+        ub.className = 'kk-field';
+        const ubLabel = document.createElement('span');
+        ubLabel.className = 'kk-label';
+        ubLabel.textContent = 'Underbygging: ';
+        const ubVal = document.createElement('span');
+        ubVal.textContent = pa.underbygging;
+        ub.appendChild(ubLabel);
+        ub.appendChild(ubVal);
+        paDiv.appendChild(ub);
+      }
+
+      if (pa.konsensus) {
+        const ks = document.createElement('div');
+        ks.className = 'kk-field';
+        const ksLabel = document.createElement('span');
+        ksLabel.className = 'kk-label';
+        ksLabel.textContent = 'Konsensus: ';
+        const ksVal = document.createElement('span');
+        ksVal.textContent = pa.konsensus;
+        ks.appendChild(ksLabel);
+        ks.appendChild(ksVal);
+        paDiv.appendChild(ks);
+      }
+
+      card.appendChild(paDiv);
     });
-    card3.appendChild(ul3);
-    grid.appendChild(card3);
+    grid2.appendChild(card);
   }
 
-  // Kort 4: Samlet kildevurdering
-  if (data.samlet) {
-    const card4 = document.createElement('div');
-    card4.className = 'begrep-card';
-    const t4 = document.createElement('h3');
-    t4.className = 'begrep-title';
-    t4.textContent = 'Samlet kildevurdering';
-    card4.appendChild(t4);
+  // Kort 5: Perspektiv & bias
+  if (data.perspektiv) {
+    const card = document.createElement('div');
+    card.className = 'begrep-card';
+    const t = document.createElement('h3');
+    t.className = 'begrep-title';
+    t.textContent = 'Perspektiv & bias';
+    card.appendChild(t);
 
-    // Trafikklys
-    const validStyrke = ['sterk', 'middels', 'svak'];
-    const styrke = validStyrke.indexOf(data.samlet.styrke) !== -1 ? data.samlet.styrke : 'middels';
-    const indicator = document.createElement('div');
-    indicator.className = 'kk-styrke kk-styrke--' + styrke;
-    const dot = document.createElement('span');
-    dot.className = 'kk-dot';
-    const styrkeLabel = { sterk: 'Sterk kilde', middels: 'Middels kilde', svak: 'Svak kilde' };
-    const styrkeTxt = document.createElement('span');
-    styrkeTxt.textContent = styrkeLabel[data.samlet.styrke] || 'Vurdering ikke tilgjengelig';
-    indicator.appendChild(dot);
-    indicator.appendChild(styrkeTxt);
-    card4.appendChild(indicator);
+    if (data.perspektiv.ramme) {
+      const ramme = document.createElement('div');
+      ramme.className = 'begrep-forklaring';
+      ramme.textContent = data.perspektiv.ramme;
+      card.appendChild(ramme);
+    }
 
-    if (data.samlet.vurdering) {
-      const vurd = document.createElement('div');
-      vurd.className = 'begrep-forklaring';
-      vurd.textContent = data.samlet.vurdering;
-      card4.appendChild(vurd);
+    if (data.perspektiv.eksempler && data.perspektiv.eksempler.length) {
+      const eksLabel = document.createElement('div');
+      eksLabel.className = 'kk-list-label';
+      eksLabel.textContent = 'Eksempler på bias';
+      card.appendChild(eksLabel);
+      const ul = document.createElement('ul');
+      ul.className = 'arg-list';
+      data.perspektiv.eksempler.forEach(function(e) {
+        const li = document.createElement('li');
+        li.textContent = e;
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
     }
-    if (data.samlet.bruksomrade) {
-      const bruk = document.createElement('div');
-      bruk.className = 'kk-field';
-      const brukLabel = document.createElement('span');
-      brukLabel.className = 'kk-label';
-      brukLabel.textContent = 'Kan brukes til: ';
-      const brukVal = document.createElement('span');
-      brukVal.textContent = data.samlet.bruksomrade;
-      bruk.appendChild(brukLabel);
-      bruk.appendChild(brukVal);
-      card4.appendChild(bruk);
+
+    if (data.perspektiv.utelatt && data.perspektiv.utelatt.length) {
+      const utLabel = document.createElement('div');
+      utLabel.className = 'kk-list-label';
+      utLabel.textContent = 'Utelatte perspektiver';
+      card.appendChild(utLabel);
+      const ul = document.createElement('ul');
+      ul.className = 'arg-list';
+      data.perspektiv.utelatt.forEach(function(u) {
+        const li = document.createElement('li');
+        li.textContent = u;
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
     }
-    if (data.samlet.begrensninger) {
-      const begr = document.createElement('div');
-      begr.className = 'kk-field';
-      const begrLabel = document.createElement('span');
-      begrLabel.className = 'kk-label';
-      begrLabel.textContent = 'Kan IKKE brukes til: ';
-      const begrVal = document.createElement('span');
-      begrVal.textContent = data.samlet.begrensninger;
-      begr.appendChild(begrLabel);
-      begr.appendChild(begrVal);
-      card4.appendChild(begr);
-    }
-    grid.appendChild(card4);
+
+    grid2.appendChild(card);
   }
 
-  sec.appendChild(grid);
+  // Kort 6: Samlet innholdsvurdering
+  if (data.samlet_innhold) {
+    grid2.appendChild(renderSamletCard('Samlet innholdsvurdering', 'innhold', data.samlet_innhold));
+  }
+
+  sec.appendChild(grid2);
+}
+
+// Helper: render samlet vurdering-kort med trafikklys
+function renderSamletCard(title, type, samlet) {
+  const card = document.createElement('div');
+  card.className = 'begrep-card';
+  const t = document.createElement('h3');
+  t.className = 'begrep-title';
+  t.textContent = title;
+  card.appendChild(t);
+
+  const validStyrke = ['sterk', 'middels', 'svak'];
+  const styrke = validStyrke.indexOf(samlet.styrke) !== -1 ? samlet.styrke : 'middels';
+  const indicator = document.createElement('div');
+  indicator.className = 'kk-styrke kk-styrke--' + styrke;
+  const dot = document.createElement('span');
+  dot.className = 'kk-dot';
+  const styrkeLabels = {
+    kilde: { sterk: 'Sterk kilde', middels: 'Middels kilde', svak: 'Svak kilde' },
+    innhold: { sterk: 'Sterkt innhold', middels: 'Middels innhold', svak: 'Svakt innhold' },
+  };
+  const styrkeTxt = document.createElement('span');
+  styrkeTxt.textContent = (styrkeLabels[type] || styrkeLabels.kilde)[samlet.styrke] || 'Vurdering ikke tilgjengelig';
+  indicator.appendChild(dot);
+  indicator.appendChild(styrkeTxt);
+  card.appendChild(indicator);
+
+  if (samlet.vurdering) {
+    const vurd = document.createElement('div');
+    vurd.className = 'begrep-forklaring';
+    vurd.textContent = samlet.vurdering;
+    card.appendChild(vurd);
+  }
+  if (samlet.bruksomrade) {
+    const bruk = document.createElement('div');
+    bruk.className = 'kk-field';
+    const brukLabel = document.createElement('span');
+    brukLabel.className = 'kk-label';
+    brukLabel.textContent = 'Kan brukes til: ';
+    const brukVal = document.createElement('span');
+    brukVal.textContent = samlet.bruksomrade;
+    bruk.appendChild(brukLabel);
+    bruk.appendChild(brukVal);
+    card.appendChild(bruk);
+  }
+  if (samlet.begrensninger) {
+    const begr = document.createElement('div');
+    begr.className = 'kk-field';
+    const begrLabel = document.createElement('span');
+    begrLabel.className = 'kk-label';
+    begrLabel.textContent = 'Kan IKKE brukes til: ';
+    const begrVal = document.createElement('span');
+    begrVal.textContent = samlet.begrensninger;
+    begr.appendChild(begrLabel);
+    begr.appendChild(begrVal);
+    card.appendChild(begr);
+  }
+
+  return card;
 }
 
 // --- Download standalone HTML ---
