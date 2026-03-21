@@ -484,7 +484,7 @@ function renderSammendrag(temaer) {
 // --- Q&A ---
 function renderQA(qaItems) {
   const sec = document.getElementById('sporsmal');
-  sec.innerHTML = '<div class="sec-title">Spørsmål &amp; Svar</div><div class="sec-sub">Si svaret høyt før du slår opp.</div>';
+  sec.innerHTML = '<div class="sec-title">Spørsmål &amp; Svar</div><div class="sec-sub">Formuler egne tanker før du slår opp.</div>';
 
   const grid = document.createElement('div');
   grid.className = 'qa-grid';
