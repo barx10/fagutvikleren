@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lærbart</title>
+<title>Fagdykk</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
@@ -13,8 +13,8 @@
 
 <header>
   <div>
-    <h1 id="page-title">Lærbart</h1>
-    <div id="page-sub" style="font-size:.8rem;color:var(--gl);margin-top:4px;opacity:.85;">Last opp fagsartikler og få større innsikt</div>
+    <h1 id="page-title">Fagdykk</h1>
+    <div id="page-sub" style="font-size:.8rem;color:var(--gl);margin-top:4px;opacity:.85;">Dykk ned i fagstoffet</div>
   </div>
   <div class="header-actions" id="header-actions">
     <button class="btn-outline" onclick="openModal('help-modal')">Hjelp</button>
@@ -69,26 +69,26 @@
 <div class="modal-overlay" id="help-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('help-modal')">&times;</button>
-    <h2>Slik bruker du Lærbart</h2>
+    <h2>Slik bruker du Fagdykk</h2>
     <p><strong>1. Legg inn API-nøkkel</strong><br>Klikk «API» i toppmenyen, lim inn din API-nøkkel for Google Gemini eller OpenAI, og velg modell. Nøklene lagres kun i nettleseren din.</p>
     <p><strong>2. Legg inn fagstoff</strong><br>Last opp en PDF eller DOCX-fil (maks 20MB), lim inn tekst direkte, eller legg inn en lenke til en artikkel. Kun tekst leses — illustrasjoner og figurer blir ikke analysert.</p>
-    <p><strong>3. Generer</strong><br>Klikk «Generer læringsverktøy». KI-en analyserer fagstoffet og lager:</p>
+    <p><strong>3. Ta et fagdykk</strong><br>Klikk «Ta et fagdykk». KI-en analyserer fagstoffet og lager:</p>
     <p>&bull; <strong>Sammendrag</strong> &ndash; nøkkelpunkter per tema<br>
        &bull; <strong>Spørsmål &amp; Svar</strong> &ndash; øvelsesspørsmål med fasit<br>
        &bull; <strong>Argumentasjon</strong> &ndash; hovedpåstander med argumenter og motargumenter<br>
        &bull; <strong>Kildekritikk</strong> &ndash; systematisk vurdering av kildens troverdighet<br>
        &bull; <strong>Flashcards</strong> &ndash; øv begreper og sammenhenger</p>
-    <p><strong>4. Last ned</strong><br>Klikk «Last ned HTML» for å ta med læringsverktøyet offline.</p>
+    <p><strong>4. Last ned</strong><br>Klikk «Last ned HTML» for å ta med fagdykket offline.</p>
   </div>
 </div>
 
 <div class="modal-overlay" id="about-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('about-modal')">&times;</button>
-    <h2>Om Lærbart</h2>
+    <h2>Om Fagdykk</h2>
     <div class="about-section">
-      <img src="/assets/laererliv-logo.png" alt="Lærbart logo" style="max-width:120px;margin-bottom:1rem;display:none;" id="about-logo" onload="this.style.display='block'">
-      <p>Lærbart er et digitalt verktøy som bruker KI til å gjøre fagstoff om til interaktive læringsverktøy. Last opp en PDF eller DOCX, og få et sammendrag og en akademisk analyse med hovedpoenger, motargumenter, kildekritikk, spørsmål og flashcards.</p>
+      <img src="/assets/laererliv-logo.png" alt="Fagdykk logo" style="max-width:120px;margin-bottom:1rem;display:none;" id="about-logo" onload="this.style.display='block'">
+      <p>Fagdykk er et digitalt verktøy som bruker KI til å gjøre fagstoff om til dyptgående analyser. Last opp en PDF eller DOCX, og få et sammendrag, argumentasjon, kildekritikk, spørsmål og flashcards.</p>
     </div>
     <div class="about-section">
       <h3>Kenneth Bareksten</h3>
@@ -101,8 +101,8 @@
 
 <div id="upload-view">
   <div class="upload-card">
-    <h2>Last opp fagstoff</h2>
-    <p>Verktøyet analyserer fagstoffet ditt og lager et sammendrag og en akademisk analyse med hovedpoenger, motargumenter, kildekritikk, spørsmål og flashcards.</p>
+    <h2>Ta et fagdykk</h2>
+    <p>Fagdykk analyserer fagstoffet ditt og gir deg sammendrag, argumentasjon, kildekritikk, spørsmål og flashcards.</p>
     <div class="input-tabs">
       <button class="input-tab active" data-mode="fil">Fil</button>
       <button class="input-tab" data-mode="tekst">Lim inn tekst</button>
@@ -127,7 +127,7 @@
       <div class="spin"></div>
       <div class="spin-label">Analyserer fagstoffet…</div>
     </div>
-    <button class="btn-primary" id="generate-btn" disabled onclick="generate()">Generer faginnsikt</button>
+    <button class="btn-primary" id="generate-btn" disabled onclick="generate()">Ta et fagdykk</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
 </div>

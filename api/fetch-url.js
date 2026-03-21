@@ -56,7 +56,7 @@ async function handler(req, res) {
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
-        'User-Agent': 'Laerbart/1.0 (educational tool)',
+        'User-Agent': 'Fagdykk/1.0 (educational tool)',
         'Accept': 'text/html, application/xhtml+xml, text/plain',
       },
     });

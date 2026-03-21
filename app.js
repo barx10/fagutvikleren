@@ -283,7 +283,7 @@ async function generate() {
     errEl.textContent = err.message;
     btn.disabled = false;
   } finally {
-    btn.textContent = 'Generer læringsverktøy';
+    btn.textContent = 'Ta et fagdykk';
     document.getElementById('spinner').classList.remove('visible');
   }
 }
@@ -292,7 +292,7 @@ async function generate() {
 function showResult(data) {
   document.getElementById('upload-view').style.display = 'none';
   document.getElementById('result-view').classList.add('visible');
-  document.getElementById('page-title').textContent = data.title || 'Læringsverktøy';
+  document.getElementById('page-title').textContent = data.title || 'Fagdykk';
   var metaParts = [];
   if (data.originalTitle && data.originalTitle !== data.title) metaParts.push(data.originalTitle);
   if (data.authors) metaParts.push(data.authors);
@@ -864,7 +864,7 @@ async function downloadHTML() {
 
   const cssRes = await fetch('/style.css');
   const css = await cssRes.text();
-  const safeTitle = esc(data.title || 'Læringsverktøy');
+  const safeTitle = esc(data.title || 'Fagdykk');
 
   const navHTML = document.getElementById('tab-nav').innerHTML;
   const contentHTML = document.getElementById('tab-content').innerHTML;
@@ -957,7 +957,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const blob = new Blob([html], { type: 'text/html' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = (data.title || 'laeringsverktoy')
+  a.download = (data.title || 'fagdykk')
     .replace(/[^a-z0-9æøå]/gi, '-')
     .toLowerCase() + '.html';
   document.body.appendChild(a);
