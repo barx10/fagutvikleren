@@ -27,7 +27,9 @@ function validateFile(mimeType, size) {
 }
 
 function buildPrompt() {
-  return `Du er en fagperson med bred og dyp kunnskap. Du forklarer presist, korrekt og med gode eksempler. Analyser fagstoffet og generer et strukturert læringsverktøy på norsk.
+  return `Du er en fagperson med bred og dyp kunnskap, og du leser akademisk litteratur med et kritisk blikk. Analyser fagstoffet og generer et strukturert læringsverktøy på norsk.
+
+Viktig: Vær akademisk kritisk gjennom hele analysen. Ikke gjengi forfatternes konklusjoner ukritisk. Identifiser metodologiske svakheter, konfounders, begrensninger i utvalg og generaliserbarhet. Skille mellom hva evidensen faktisk viser og hva forfatterne hevder. Påpek hva studien IKKE viser.
 
 Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
 {
@@ -43,7 +45,7 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
     { "tema": "Temaoverskrift", "punkter": ["Punkt 1", "Punkt 2"] }
   ],
   "qa": [
-    { "sporsmal": "Forståelsesspørsmål", "svar": "Utdypende svar", "hint": "Hint til eleven" }
+    { "sporsmal": "Kritisk eller utfordrende spørsmål", "svar": "Utdypende svar med nyanser", "hint": "Ledetråd" }
   ],
   "argumentasjon": [
     { "pastand": "Hovedpåstand fra fagstoffet", "argumenter": ["Argument 1", "Argument 2"], "evidens": "Fakta eller kildehenvisning som støtter", "motargumenter": ["Innvending 1 med begrunnelse", "Innvending 2 med begrunnelse"], "vurdering": "Kort akademisk vurdering av påstandens styrke og begrensninger" }
@@ -58,9 +60,11 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
 
 Trekk kun ut ord som ville kreve forklaring for en person utenfor fagfeltet. Inkluder ikke allmenne norske ord (f.eks. «kontekstuelt», «syntese»). Hvis teksten ikke inneholder spesialiserte fagtermer, returner en tom liste.
 Koble sentrale begreper til konkrete paralleller i andre navngitte fagfelt for tverrfaglig. Beskriv parallellen utdypende (2-3 setninger), ikke bare med et stikkord.
-For argumentasjon: presenter et balansert akademisk overblikk. Hver påstand skal ha minst 2 motargumenter med begrunnelse, samt en avsluttende vurdering av påstandens styrke og svakheter.
+For argumentasjon: presenter et balansert akademisk overblikk. Hver påstand skal ha minst 2 motargumenter med begrunnelse — inkluder metodologisk kritikk (utvalg, design, konfounders, ekstern validitet), ikke bare alternative perspektiver. Vurderingen skal eksplisitt adressere evidensstyrke og hva som mangler for å trekke sikre konklusjoner.
+For sammendrag: siste tema skal alltid være «Metodekritikk» med konkrete svakheter i studiens design, utvalg, operasjonalisering og generaliserbarhet. Vær spesifikk — ikke skriv «studien har begrensninger», men hvilke og hvorfor de betyr noe.
+For Q&A: minst 3 av spørsmålene skal utfordre premissene i teksten (f.eks. «Er det rimelig å konkludere X basert på dette designet?»), ikke bare be om gjengivelse av funn.
 
-Generer minimum: 15 flashcards, 3-5 sammendrag-temaer (3-6 punkter hver), 10 Q&A-par, 4-6 argumentasjoner, 6-15 ordforklaringer, 5-8 tverrfaglige koblinger.`;
+Generer minimum: 15 flashcards, 3-5 sammendrag-temaer pluss metodekritikk (3-6 punkter hver), 10 Q&A-par (minst 3 kritiske), 4-6 argumentasjoner, 6-15 ordforklaringer, 5-8 tverrfaglige koblinger.`;
 }
 
 async function callGemini(apiKey, model, prompt, text) {
