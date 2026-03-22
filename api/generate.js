@@ -135,8 +135,17 @@ async function callOpenAI(apiKey, model, prompt, text) {
   return response.choices[0].message.content.trim();
 }
 
+function getAllowedOrigin(req) {
+  const origin = req.headers.origin || '';
+  if (origin === 'https://fagdykk.vercel.app'
+    || origin.endsWith('.vercel.app')
+    || origin.startsWith('http://localhost')) return origin;
+  return '';
+}
+
 async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  var allowed = getAllowedOrigin(req);
+  res.setHeader('Access-Control-Allow-Origin', allowed);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -162,7 +171,7 @@ async function handler(req, res) {
       ? await callGemini(apiKey, model, prompt, text)
       : await callOpenAI(apiKey, model, prompt, text);
   } catch (err) {
-    console.error('API call error:', err);
+    console.error('API call error:', err.status || err.code, err.message);
 
     if (err.status === 401 || err.code === 401 || (err.message && err.message.includes('API key'))) {
       return res.status(401).json({ error: 'Ugyldig API-nokkel. Sjekk at nokkelen er riktig.' });

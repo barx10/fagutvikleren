@@ -25,8 +25,17 @@ function stripHtml(html) {
   return text.trim();
 }
 
+function getAllowedOrigin(req) {
+  const origin = req.headers.origin || '';
+  if (origin === 'https://fagdykk.vercel.app'
+    || origin.endsWith('.vercel.app')
+    || origin.startsWith('http://localhost')) return origin;
+  return '';
+}
+
 async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  var allowed = getAllowedOrigin(req);
+  res.setHeader('Access-Control-Allow-Origin', allowed);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -47,6 +56,11 @@ async function handler(req, res) {
 
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
     return res.status(400).json({ error: 'Kun HTTP/HTTPS-lenker støttes.' });
+  }
+
+  const blockedHost = /^(localhost|127\.|0\.0\.0\.0|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|\[::1\])/;
+  if (blockedHost.test(parsed.hostname)) {
+    return res.status(400).json({ error: 'Denne adressen er ikke tillatt.' });
   }
 
   try {
