@@ -27,10 +27,15 @@ describe('buildPrompt', () => {
     expect(buildPrompt()).toMatch(/JSON/);
   });
 
-  test('spesifiserer alle fem seksjoner', () => {
+  test('spesifiserer alle fire seksjoner', () => {
     const prompt = buildPrompt();
-    ['flashcards', 'sammendrag', 'qa', 'argumentasjon', 'kildekritikk']
+    ['sammendrag', 'qa', 'argumentasjon', 'kildekritikk']
       .forEach(key => expect(prompt).toMatch(key));
+  });
+
+  test('inneholder ikke flashcards', () => {
+    const prompt = buildPrompt();
+    expect(prompt).not.toMatch(/"flashcards"/);
   });
 
   test('inneholder ikke ordforklaring eller tverrfaglig', () => {
