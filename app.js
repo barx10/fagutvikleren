@@ -193,12 +193,25 @@ function setFile(file) {
   errEl.textContent = '';
 }
 
+// --- Lazy-load libraries ---
+function loadScript(src) {
+  if (document.querySelector('script[src="' + src + '"]')) return Promise.resolve();
+  return new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = function() { reject(new Error('Kunne ikke laste ' + src)); };
+    document.head.appendChild(s);
+  });
+}
+
 // --- Extract text from file ---
 async function extractTextFromFile(file) {
   const mimeType = file.type || detectMime(file.name);
   const arrayBuffer = await file.arrayBuffer();
 
   if (mimeType === 'application/pdf') {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
     const pdfjsLib = window.pdfjsLib;
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
@@ -210,6 +223,7 @@ async function extractTextFromFile(file) {
     }
     return pages.join('\n\n');
   } else {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js');
     const result = await mammoth.extractRawText({ arrayBuffer });
     return result.value;
   }
@@ -329,7 +343,6 @@ function renderTabs(data) {
     { id: 'sporsmal', label: 'Spørsmål & Svar' },
     { id: 'argumentasjon', label: 'Argumentasjon' },
     { id: 'kildekritikk', label: 'Kildekritikk' },
-    { id: 'flashcards', label: 'Flashcards' },
   ];
 
   const nav = document.getElementById('tab-nav');
@@ -350,106 +363,25 @@ function renderTabs(data) {
     content.appendChild(sec);
   });
 
-  renderFlashcards(data.flashcards);
   renderSammendrag(data.sammendrag);
   renderQA(data.qa);
   renderArgumentasjon(data.argumentasjon);
   renderKildekritikk(data.kildekritikk);
 }
 
-// --- Flashcards ---
-let _fcCards = [], fcFiltered = [], fcCur = 0, fcFlipped = false;
-
-function renderFlashcards(cards) {
-  _fcCards = cards;
-  fcFiltered = [...cards];
-  fcCur = 0;
-  fcFlipped = false;
-
-  const catLabels = { kjerne: 'Kjerne', fakta: 'Fakta', begrep: 'Begrep', eksempel: 'Eksempel' };
-  const cats = [...new Set(cards.map(c => c.cat))];
-  const sec = document.getElementById('flashcards');
-
-  sec.innerHTML = `
-    <div class="sec-title">Flashcards</div>
-    <div class="sec-sub">Klikk for å snu. Øv høyt.</div>
-    <div class="ftabs" id="fc-filters">
-      <button class="ftab active" data-cat="alle">Alle</button>
-    </div>
-    <div class="pbar-bg"><div class="pbar" id="fcpb" style="width:0%"></div></div>
-    <div class="fc-hint" id="fchint">Klikk for å snu</div>
-    <div class="fc-wrap">
-      <div class="card" id="flashcard">
-        <div class="face front">
-          <div class="clabel" id="fclabel"></div>
-          <div class="cbadge" id="fcbadge"></div>
-          <div class="ctext" id="fcfront"></div>
-        </div>
-        <div class="face back">
-          <div class="clabel">Svar</div>
-          <div class="ctext" id="fcback"></div>
-        </div>
-      </div>
-    </div>
-    <div class="cnav">
-      <button id="fc-prev">← Forrige</button>
-      <span class="ccount" id="fccount"></span>
-      <button id="fc-next">Neste →</button>
-    </div>
-  `;
-
-  const filters = document.getElementById('fc-filters');
-  cats.forEach(cat => {
-    const btn = document.createElement('button');
-    btn.className = 'ftab';
-    btn.dataset.cat = cat;
-    btn.textContent = catLabels[cat] || cat;
-    filters.appendChild(btn);
-  });
-
-  filters.addEventListener('click', e => {
-    if (!e.target.matches('.ftab')) return;
-    filters.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
-    e.target.classList.add('active');
-    const cat = e.target.dataset.cat;
-    fcFiltered = cat === 'alle' ? [..._fcCards] : _fcCards.filter(c => c.cat === cat);
-    fcCur = 0;
-    fcUpdate();
-  });
-
-  document.getElementById('flashcard').addEventListener('click', fcFlip);
-  document.getElementById('fc-next').addEventListener('click', () => { fcCur = (fcCur + 1) % fcFiltered.length; fcUpdate(); });
-  document.getElementById('fc-prev').addEventListener('click', () => { fcCur = (fcCur - 1 + fcFiltered.length) % fcFiltered.length; fcUpdate(); });
-
-  fcUpdate();
-}
-
-function fcUpdate() {
-  if (!fcFiltered.length) return;
-  const c = fcFiltered[fcCur];
-  const catLabels = { kjerne: 'Kjerne', fakta: 'Fakta', begrep: 'Begrep', eksempel: 'Eksempel' };
-  document.getElementById('fcfront').textContent = c.front;
-  document.getElementById('fcbadge').textContent = catLabels[c.cat] || c.cat;
-  document.getElementById('fcback').textContent = c.back;
-  document.getElementById('fclabel').textContent = (fcCur + 1) + ' / ' + fcFiltered.length;
-  document.getElementById('fccount').textContent = (fcCur + 1) + ' / ' + fcFiltered.length;
-  document.getElementById('fcpb').style.width = ((fcCur + 1) / fcFiltered.length * 100) + '%';
-  document.getElementById('flashcard').classList.remove('flipped');
-  fcFlipped = false;
-  document.getElementById('fchint').textContent = 'Klikk for å snu';
-}
-
-function fcFlip() {
-  fcFlipped = !fcFlipped;
-  document.getElementById('flashcard').classList.toggle('flipped', fcFlipped);
-  document.getElementById('fchint').textContent = fcFlipped ? 'Klikk for å snu tilbake' : 'Klikk for å snu';
-}
-
 // --- Sammendrag ---
 function renderSammendrag(temaer) {
   const sec = document.getElementById('sammendrag');
-  sec.innerHTML = '<div class="sec-title">Sammendrag</div><div class="sec-sub">Nøkkelpunkter per tema.</div>';
+  const header = document.createElement('div');
+  header.className = 'sec-title';
+  header.textContent = 'Sammendrag';
+  const sub = document.createElement('div');
+  sub.className = 'sec-sub';
+  sub.textContent = 'Nøkkelpunkter per tema.';
+  sec.appendChild(header);
+  sec.appendChild(sub);
 
+  const frag = document.createDocumentFragment();
   temaer.forEach(t => {
     const card = document.createElement('div');
     card.className = 'tema-card';
@@ -466,14 +398,22 @@ function renderSammendrag(temaer) {
       ul.appendChild(li);
     });
     card.appendChild(ul);
-    sec.appendChild(card);
+    frag.appendChild(card);
   });
+  sec.appendChild(frag);
 }
 
 // --- Q&A ---
 function renderQA(qaItems) {
   const sec = document.getElementById('sporsmal');
-  sec.innerHTML = '<div class="sec-title">Spørsmål &amp; Svar</div><div class="sec-sub">Formuler egne tanker før du slår opp.</div>';
+  const header = document.createElement('div');
+  header.className = 'sec-title';
+  header.textContent = 'Spørsmål & Svar';
+  const sub = document.createElement('div');
+  sub.className = 'sec-sub';
+  sub.textContent = 'Formuler egne tanker før du slår opp.';
+  sec.appendChild(header);
+  sec.appendChild(sub);
 
   const grid = document.createElement('div');
   grid.className = 'qa-grid';
@@ -634,7 +574,7 @@ function renderKildekritikk(data) {
     const fields = [
       { label: 'Forfatter', value: kv.forfatter },
       { label: 'Publiseringskanal', value: kv.publiseringskanal },
-      { label: 'Finansiering', value: kv.finansiering },
+      { label: 'Formål', value: kv.formål || kv.finansiering },
       { label: 'Aktualitet', value: kv.aktualitet },
     ];
     fields.forEach(function(f) {
@@ -651,6 +591,55 @@ function renderKildekritikk(data) {
       card.appendChild(row);
     });
     grid1.appendChild(card);
+  }
+
+  // Kort: Kildetype
+  if (data.kildetype) {
+    const ktCard = document.createElement('div');
+    ktCard.className = 'begrep-card';
+    const ktTitle = document.createElement('h3');
+    ktTitle.className = 'begrep-title';
+    ktTitle.textContent = 'Kildetype';
+    ktCard.appendChild(ktTitle);
+
+    var ktType = data.kildetype.type === 'primærkilde' ? 'Primærkilde' : 'Sekundærkilde';
+    const ktBadge = document.createElement('div');
+    ktBadge.className = 'kk-styrke kk-styrke--' + (data.kildetype.type === 'primærkilde' ? 'sterk' : 'middels');
+    const ktDot = document.createElement('span');
+    ktDot.className = 'kk-dot';
+    const ktTxt = document.createElement('span');
+    ktTxt.textContent = ktType;
+    ktBadge.appendChild(ktDot);
+    ktBadge.appendChild(ktTxt);
+    ktCard.appendChild(ktBadge);
+
+    if (data.kildetype.sjanger) {
+      const sjRow = document.createElement('div');
+      sjRow.className = 'kk-field';
+      const sjLabel = document.createElement('span');
+      sjLabel.className = 'kk-label';
+      sjLabel.textContent = 'Sjanger: ';
+      const sjVal = document.createElement('span');
+      sjVal.textContent = data.kildetype.sjanger;
+      sjRow.appendChild(sjLabel);
+      sjRow.appendChild(sjVal);
+      ktCard.appendChild(sjRow);
+    }
+
+    if (data.kildetype.begrunnelse) {
+      const bgRow = document.createElement('div');
+      bgRow.className = 'kk-field';
+      const bgLabel = document.createElement('span');
+      bgLabel.className = 'kk-label';
+      bgLabel.textContent = 'Begrunnelse: ';
+      const bgVal = document.createElement('span');
+      bgVal.textContent = data.kildetype.begrunnelse;
+      bgRow.appendChild(bgLabel);
+      bgRow.appendChild(bgVal);
+      ktCard.appendChild(bgRow);
+    }
+
+    grid1.appendChild(ktCard);
   }
 
   // Kort 2: Metodekritikk
@@ -790,6 +779,55 @@ function renderKildekritikk(data) {
     grid2.appendChild(card);
   }
 
+  // Kort: Språk og virkemidler
+  if (data.sprak_og_virkemidler) {
+    const svCard = document.createElement('div');
+    svCard.className = 'begrep-card';
+    const svTitle = document.createElement('h3');
+    svTitle.className = 'begrep-title';
+    svTitle.textContent = 'Språk og virkemidler';
+    svCard.appendChild(svTitle);
+
+    if (data.sprak_og_virkemidler.tone) {
+      const toneDiv = document.createElement('div');
+      toneDiv.className = 'begrep-forklaring';
+      toneDiv.textContent = data.sprak_og_virkemidler.tone;
+      svCard.appendChild(toneDiv);
+    }
+
+    if (data.sprak_og_virkemidler.ladede_ord && data.sprak_og_virkemidler.ladede_ord.length) {
+      const loLabel = document.createElement('div');
+      loLabel.className = 'kk-list-label';
+      loLabel.textContent = 'Ladede ord og formuleringer';
+      svCard.appendChild(loLabel);
+      const loUl = document.createElement('ul');
+      loUl.className = 'arg-list';
+      data.sprak_og_virkemidler.ladede_ord.forEach(function(lo) {
+        const li = document.createElement('li');
+        li.textContent = lo;
+        loUl.appendChild(li);
+      });
+      svCard.appendChild(loUl);
+    }
+
+    if (data.sprak_og_virkemidler.retoriske_grep && data.sprak_og_virkemidler.retoriske_grep.length) {
+      const rgLabel = document.createElement('div');
+      rgLabel.className = 'kk-list-label';
+      rgLabel.textContent = 'Retoriske grep';
+      svCard.appendChild(rgLabel);
+      const rgUl = document.createElement('ul');
+      rgUl.className = 'arg-list';
+      data.sprak_og_virkemidler.retoriske_grep.forEach(function(rg) {
+        const li = document.createElement('li');
+        li.textContent = rg;
+        rgUl.appendChild(li);
+      });
+      svCard.appendChild(rgUl);
+    }
+
+    grid2.appendChild(svCard);
+  }
+
   // Kort 6: Samlet innholdsvurdering
   if (data.samlet_innhold) {
     grid2.appendChild(renderSamletCard('Samlet innholdsvurdering', 'innhold', data.samlet_innhold));
@@ -870,9 +908,6 @@ async function downloadHTML() {
   const contentHTML = document.getElementById('tab-content').innerHTML;
 
   const standaloneJS = `
-const _d = ${JSON.stringify(data).replace(/<\/script>/gi, '<\\/script>')};
-let _fcCards = _d.flashcards, fcFiltered = [..._d.flashcards], fcCur = 0, fcFlipped = false;
-
 function showSection(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -880,54 +915,15 @@ function showSection(id, btn) {
   btn.classList.add('active');
 }
 
-function fcUpdate() {
-  if (!fcFiltered.length) return;
-  const c = fcFiltered[fcCur];
-  const cl = {kjerne:'Kjerne',fakta:'Fakta',begrep:'Begrep',eksempel:'Eksempel'};
-  document.getElementById('fcfront').textContent = c.front;
-  document.getElementById('fcbadge').textContent = cl[c.cat] || c.cat;
-  document.getElementById('fcback').textContent = c.back;
-  document.getElementById('fclabel').textContent = (fcCur+1) + ' / ' + fcFiltered.length;
-  document.getElementById('fccount').textContent = (fcCur+1) + ' / ' + fcFiltered.length;
-  document.getElementById('fcpb').style.width = ((fcCur+1)/fcFiltered.length*100) + '%';
-  document.getElementById('flashcard').classList.remove('flipped');
-  fcFlipped = false;
-  document.getElementById('fchint').textContent = 'Klikk for å snu';
-}
-
-function fcFlip() {
-  fcFlipped = !fcFlipped;
-  document.getElementById('flashcard').classList.toggle('flipped', fcFlipped);
-  document.getElementById('fchint').textContent = fcFlipped ? 'Klikk for å snu tilbake' : 'Klikk for å snu';
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-  const tabIds = ['sammendrag','sporsmal','argumentasjon','kildekritikk','flashcards'];
+  const tabIds = ['sammendrag','sporsmal','argumentasjon','kildekritikk'];
   document.querySelectorAll('nav button').forEach((btn, i) => {
     btn.addEventListener('click', () => showSection(tabIds[i], btn));
   });
-  const fc = document.getElementById('flashcard');
-  if (fc) fc.addEventListener('click', fcFlip);
-  const fcNext = document.getElementById('fc-next');
-  if (fcNext) fcNext.addEventListener('click', () => { fcCur = (fcCur+1)%fcFiltered.length; fcUpdate(); });
-  const fcPrev = document.getElementById('fc-prev');
-  if (fcPrev) fcPrev.addEventListener('click', () => { fcCur = (fcCur-1+fcFiltered.length)%fcFiltered.length; fcUpdate(); });
-  const filters = document.getElementById('fc-filters');
-  if (filters) {
-    filters.addEventListener('click', e => {
-      if (!e.target.matches('.ftab')) return;
-      filters.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
-      e.target.classList.add('active');
-      const cat = e.target.dataset.cat;
-      fcFiltered = cat === 'alle' ? [..._fcCards] : _fcCards.filter(c => c.cat === cat);
-      fcCur = 0; fcUpdate();
-    });
-  }
   document.querySelectorAll('.qi').forEach(qi => {
     const qq = qi.querySelector('.qq');
     if (qq) qq.addEventListener('click', () => qi.classList.toggle('open'));
   });
-  fcUpdate();
 });
 `;
 
