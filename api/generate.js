@@ -40,9 +40,6 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
   "originalTitle": "Originaltittel på kildens språk (hvis annet enn norsk, ellers samme som title)",
   "authors": "Forfatter(e) hvis nevnt i teksten, ellers tom streng",
   "published": "Publiseringsår eller dato hvis nevnt, ellers tom streng",
-  "flashcards": [
-    { "front": "Spørsmål eller begrep", "back": "Svar eller definisjon", "cat": "kjerne|fakta|begrep|eksempel" }
-  ],
   "sammendrag": [
     { "tema": "Temaoverskrift", "punkter": ["Punkt 1", "Punkt 2"] }
   ],
@@ -56,8 +53,13 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
     "kildevurdering": {
       "forfatter": "Vurdering av forfatterens autoritet, tilknytning og mulige interessekonflikter",
       "publiseringskanal": "Type publikasjon — fagfellevurdert tidsskrift, forlag, rapport, blogg osv.",
-      "finansiering": "Hvem finansierte forskningen og mulige implikasjoner for objektivitet",
+      "formål": "Tekstens formål og agenda — hvorfor ble den skrevet, hvem er målgruppen, og finnes det interessekonflikter eller finansieringskilder som kan påvirke innholdet",
       "aktualitet": "Når publisert og om funnene fortsatt er relevante"
+    },
+    "kildetype": {
+      "type": "primærkilde|sekundærkilde",
+      "sjanger": "Sjanger og form — fagfellevurdert artikkel, lærebok, kronikk, rapport, nyhetsartikkel osv.",
+      "begrunnelse": "Kort begrunnelse for klassifiseringen"
     },
     "metodekritikk": ["Konkret svakhet 1", "Konkret svakhet 2"],
     "samlet_kilde": {
@@ -78,6 +80,11 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
       "eksempler": ["Konkret eksempel på bias — ordvalg, framing eller kildeseleksjon"],
       "utelatt": ["Perspektiv eller vinkling som mangler i teksten"]
     },
+    "sprak_og_virkemidler": {
+      "tone": "Overordnet beskrivelse av tekstens tone — nøytral, engasjert, polemisk, akademisk osv.",
+      "ladede_ord": ["Konkret eksempel på ladet ordvalg med forklaring av effekten"],
+      "retoriske_grep": ["Konkret retorisk grep brukt i teksten — f.eks. appell til autoritet, følelsesappell, gjentakelse"]
+    },
     "samlet_innhold": {
       "styrke": "sterk|middels|svak",
       "vurdering": "Kvalitativ helhetsvurdering av innholdets troverdighet og balanse"
@@ -85,7 +92,6 @@ Returner KUN gyldig JSON uten markdown-formatering eller forklaringer:
   }
 }
 
-For flashcards: inkluder også fagtermer og fremmedord fra teksten som cat "begrep" — forsiden er fagtermen, baksiden er kort definisjon. Trekk kun ut ord som ville kreve forklaring for en person utenfor fagfeltet.
 For argumentasjon: identifiser ALLE sentrale påstander i teksten — en fagartikkel har alltid flere enn én. Presenter et balansert akademisk overblikk for hver. Hver påstand skal ha minst 2 motargumenter med begrunnelse — inkluder metodologisk kritikk (utvalg, design, konfounders, ekstern validitet), ikke bare alternative perspektiver. Vurderingen skal eksplisitt adressere evidensstyrke og hva som mangler for å trekke sikre konklusjoner. Det er KRITISK at du genererer minst 4 argumentasjoner — aldri bare 1.
 For sammendrag: presenter 4-5 temaer med nøkkelpunkter (4-6 punkter per tema). Hvert punkt skal være substansielt og spesifikt — ikke generelle oppsummeringer. Inkluder konkrete detaljer, tall, navn og funn fra teksten. IKKE inkluder metodekritikk her — det dekkes av kildekritikk-seksjonen. Sammendraget skal gi leseren en grundig forståelse av innholdet uten å måtte lese originalteksten.
 For Q&A: minst 3 av spørsmålene skal utfordre premissene i teksten (f.eks. «Er det rimelig å konkludere X basert på dette designet?»), ikke bare be om gjengivelse av funn.
@@ -93,13 +99,14 @@ For kildekritikk: vær spesifikk og konkret i alle vurderinger. Metodekritikk sk
 For påstandsanalyse: identifiser 2-4 nøkkelpåstander, vurder om evidensen i teksten faktisk underbygger dem (intern konsistens), og plasser dem mot etablert konsensus i feltet (ekstern validering).
 For perspektiv og bias: beskriv først den overordnede teoretiske eller ideologiske rammen teksten opererer innenfor, gi deretter 2-3 konkrete eksempler på hvordan dette viser seg (ordvalg, kildeseleksjon, framing av resultater), og list 2-3 perspektiver som er utelatt.
 Samlet innholdsvurdering: «sterk» kun dersom påstandene er godt underbygget internt OG i tråd med feltets konsensus, «middels» dersom noe er ubalansert eller mangelfullt underbygget, «svak» dersom vesentlige påstander mangler evidens eller strider mot konsensus.
+For kildetype: klassifiser alltid som primær- eller sekundærkilde med begrunnelse. Angi sjanger presist — ikke bruk generiske termer som «artikkel» når du kan spesifisere «fagfellevurdert originalartikkel» eller «populærvitenskapelig kronikk».
+For språk og virkemidler: beskriv tonen presist. Identifiser 2-3 konkrete ladede ord eller formuleringer med forklaring av effekten de har. Identifiser 2-3 retoriske grep med eksempler fra teksten.
 
 Minimumskrav (ALLE må oppfylles, ingen unntak):
-- 15 flashcards fordelt på alle fire kategorier (kjerne, fakta, begrep, eksempel — minst 2 av hver)
 - 4-5 sammendrag-temaer (4-6 punkter hver, ALDRI færre enn 4 temaer)
 - 10 Q&A-par (ALDRI færre enn 10, minst 3 kritiske)
 - 4-6 argumentasjoner (ALDRI færre enn 4)
-- Komplett kildekritikk med alle seks deler utfylt (kildevurdering, metodekritikk, samlet_kilde, pastandsanalyse, perspektiv, samlet_innhold)`;
+- Komplett kildekritikk med alle åtte deler utfylt (kildevurdering, kildetype, metodekritikk, samlet_kilde, pastandsanalyse, perspektiv, sprak_og_virkemidler, samlet_innhold)`;
 }
 
 async function callGemini(apiKey, model, prompt, text) {
