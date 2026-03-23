@@ -5,8 +5,5 @@
     "api/generate.js": {
       "maxDuration": 90
     }
-  },
-  "rewrites": [
-    { "source": "/debattforberedelse", "destination": "/debattforberedelse.html" }
-  ]
+  }
 }
